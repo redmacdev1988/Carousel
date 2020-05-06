@@ -28,11 +28,6 @@ body, #slider, .wrap, .slide-content {
     position: absolute;
 }
 
-#slide1 {
-    /*background-image: url('images/palace_wall.jpg')*/
-}
-
-
 .slide-content {
     display: flex;
     flex-direction: column;

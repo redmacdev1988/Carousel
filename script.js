@@ -172,12 +172,6 @@ var Carousel = (function(DOM, WINDOW, queue) {
     let screenWidth;
     let screenHeight;
 
-    WINDOW.onresize = () => {
-        console.log('window resize!');
-        screenHeight = WINDOW.innerHeight;
-        screenWidth = WINDOW.innerWidth;
-    }
-
     _createSlideWithImage = (bShowingSlideTwo, img1, img2) => {
         let slide = DOM.createElement("div");
         if (!bShowingSlideTwo) {
@@ -225,65 +219,45 @@ var Carousel = (function(DOM, WINDOW, queue) {
         }
    }
 
-    let _testId = null;
+    let _animationIntervalID = null;
 
-    function _testFrame() {
-  
-        if (!this._bShowingSlideTwo && (this._posOne <= -1 * screenWidth || this._posTwo < 0)) {
-            console.log(`successfully animated slide 2 into view, and slide 1 away`)
-            clearInterval(_testId);
+    function _animationFrame(callback) {
+        if (!this._bShowingSlideTwo && (this._posTwo <= 50)) {
             this._bShowingSlideTwo = true;
-            _removeSlideFromSlider(this._bShowingSlideTwo);
-
-            console.log('insert slide 1 and set up position');
-            this._slider = _insertSlideIntoSlider(this._bShowingSlideTwo, this._img1, this._img2, 'ImageTwo', 'Image One', 'slider');
-            this._slideTwo = DOM.querySelector('#slide2');
-            this._slideOne = DOM.querySelector('#slide1');
-            this._posOne = _getPosition(this._slideOne);
-            this._posTwo = _getPosition(this._slideTwo);
-            this._animateTime = 0;
-            this._animateInterval = 0;
-            console.log(`After inserting slide 1, posOne: ${this._posOne} posTwo: ${this._posTwo}`);
-        }
-        
-        else if (this._bShowingSlideTwo && (this._posTwo < -1 * screenWidth || this._posOne < 0)) {
-            console.log(`successfully animated slide 1 into view, and slide 2 away`)
-            clearInterval(_testId);
+            callback();
+        } else if (this._bShowingSlideTwo && (this._posOne <= 50)) {
             this._bShowingSlideTwo = false;
-            _removeSlideFromSlider(this._bShowingSlideOne);
-
-            console.log('insert slide 2 and set up position');
-            this._slider = _insertSlideIntoSlider(this._bShowingSlideTwo, this._img1, this._img2, 'ImageTwo', 'Image One', 'slider');
-            this._slideTwo = DOM.querySelector('#slide2');
-            this._slideOne = DOM.querySelector('#slide1');
-            this._posOne = _getPosition(this._slideOne);
-            this._posTwo = _getPosition(this._slideTwo);
-            this._animateTime = 0;
-            this._animateInterval = 0;
-            console.log(`After inserting slide 2, posOne: ${this._posOne} posTwo: ${this._posTwo}`);
-
-        }
-        else {
-            this._animateTime = this._animateTime + 0.005;
+            callback();
+        } else {
+            this._animateTime = this._animateTime + 0.002;
             this._animateIncrement = 1/this._animateTime;
             this._posOne = this._posOne - this._animateIncrement; 
             this._posTwo = this._posTwo - this._animateIncrement;
             this._slideOne.style.left = `${this._posOne}px`; 
             this._slideTwo.style.left = `${this._posTwo}px`; 
-            console.log(`pos one: ${this._posOne}, pos two: ${this._posTwo}`); 
-             
-        }
+        }  
     }
 
     function addRightArrowEventHandler(screenWidth, screenHeight) {
         let arrowRight = DOM.querySelector('#arrow-right');
         if (arrowRight) {
-            arrowRight.addEventListener('click', () => { //arrow function gives parent this
-                let bound = _testFrame.bind(this, screenWidth, screenHeight);
-                _testId = setInterval(bound, 0);
+            arrowRight.addEventListener('click', () => {
+                let bound = _animationFrame.bind(this, () => {
+                    clearInterval(_animationIntervalID);
+                    _removeSlideFromSlider(this._bShowingSlideTwo);
+                    this._slider = _insertSlideIntoSlider(this._bShowingSlideTwo, this._img1, this._img2, 'ImageTwo', 'Image One', 'slider');
+                    this._slideTwo = DOM.querySelector('#slide2');
+                    this._slideOne = DOM.querySelector('#slide1');
+                    this._posOne = _getPosition(this._slideOne);
+                    this._posTwo = _getPosition(this._slideTwo);
+                    this._animateTime = 0;
+                    this._animateInterval = 0;
+                });
+                _animationIntervalID = setInterval(bound, 10);
             });
         } else { console.log('arrowRight not found'); }
     }
+
     _getPosition = slider => {
         if (!slider) {
             console.log("script.js - _getPosition, slider is null");
@@ -295,35 +269,33 @@ var Carousel = (function(DOM, WINDOW, queue) {
 
     class Carousel {
         constructor() {
-            console.log(`-- constructing a Carousel --`);
             screenWidth = WINDOW.innerWidth;
             screenHeight = WINDOW.innerHeight;
 
-            console.log(`width - ${screenWidth}, height - ${screenHeight}`);
-            console.log('Carousel this', this);
-
-            this.counter = 0;
-
             // move all private variables here
-
-            var _bShowingSlideTwo = false;
+            
             var _img1 = new Image();
             _img1.src='http://127.0.0.1:5500/images/chang-an.jpg';    
             var _img2 = new Image();
             _img2.src='http://127.0.0.1:5500/images/palace_wall.jpg';
 
+            var _bShowingSlideTwo = false;
+            
+            // initiate slide 1
+            var _slideOne = DOM.querySelector('#slide1');
+            _slideOne.style.left = '0px';
+            _slideOne.style.backgroundImage = `url('${_img1.src}')`;
+            _slideOne.style.backgroundColor = 'red';
+
             // to do look here how it is set up, and do similar
             var _slider = _insertSlideIntoSlider(_bShowingSlideTwo, _img1, _img2, 'ImageTwo', 'Image One', 'slider');
             var _slideTwo = DOM.querySelector('#slide2');
-            var _slideOne = DOM.querySelector('#slide1');
             var _posOne = _getPosition(_slideOne);
             var _posTwo = _getPosition(_slideTwo);
-
             var _animateTime = 0;
             var _animateInterval = 0;
 
-
-            addRightArrowEventHandler.call({
+            let data = {
                 _bShowingSlideTwo,
                 _img1,
                 _img2,
@@ -336,9 +308,23 @@ var Carousel = (function(DOM, WINDOW, queue) {
                 _slider,
                 _animateTime,
                 _animateInterval,
-            }, screenWidth, screenHeight);
-            // add event listener
-            //addRightArrowEventHandler(screenWidth, screenHeight, this);
+            }
+
+            // private function
+            WINDOW.onresize = () => {
+                screenHeight = WINDOW.innerHeight;
+                screenWidth = WINDOW.innerWidth;
+                if (data._bShowingSlideTwo) {
+                    data._slideTwo.style.left = '0px';
+                    data._slideOne.style.left = screenWidth+'px';
+                } else {
+                    data._slideTwo.style.left = screenWidth+'px';
+                    data._slideOne.style.left = '0px';
+                }
+                data._posOne = _getPosition(data._slideOne);
+                data._posTwo = _getPosition(data._slideTwo);
+            }
+            addRightArrowEventHandler.call(data, screenWidth, screenHeight);
         }
     }
 
@@ -350,79 +336,6 @@ var Carousel = (function(DOM, WINDOW, queue) {
 let c = new Carousel(document, window, circularQueue);
 
 
-/*
-
-let imageSlider = document.getElementById('slider');
-let bShowingSlideTwo = false;
-let arrowRight = document.querySelector('#arrow-right');
-
-if (arrowRight) {
-    arrowRight.addEventListener('click', function() {
-        console.log('arrow right clicked');
-
-        // insert slide
-        let slide = document.createElement("div");
-        if (!bShowingSlideTwo) {
-            slide.id = "slide2";
-            slide.style.backgroundImage = `url('${img1.src}')`;
-        } else {
-            slide.id = "slide1";
-            slide.style.backgroundImage = `url('${img2.src}')`;
-        }
-
-        slide.style.left = '1130px';
-        slide.className = 'slide';
-        
-        let slideContent = document.createElement("div");
-        slideContent.className = 'slide-content';
-        
-        let spanText = document.createElement('span');
-        spanText.innerHTML = (!bShowingSlideTwo) ? 'Image Two' : 'Image One';
-        
-        slideContent.appendChild(spanText);
-        slide.appendChild(slideContent);
-        
-        let slider = document.getElementById("slider");
-        slider.appendChild(slide);
-
-        // animate both slides to the left
-        let slide1 = document.querySelector('#slide1');
-        let slide2 = document.querySelector('#slide2');
-  
-        let leftOne = slide1.style.left;
-        let posOne = leftOne.substring(0, leftOne.indexOf('px'));
-        let leftTwo = slide2.style.left;
-        let posTwo = leftTwo.substring(0, leftTwo.indexOf('px'));
-
-
-        var id = setInterval(frame, 5);
-        let increment = 10;
-
-        function frame() {
-            if (!bShowingSlideTwo && (posOne <= -1130 || posTwo == 0)) {
-                clearInterval(id);
-                slider.removeChild(slide1);
-                bShowingSlideTwo = true;
-            }
-            else if (bShowingSlideTwo && (posTwo <= -1130 || posOne == 0)) {
-                clearInterval(id);
-                slider.removeChild(slide2);
-                bShowingSlideTwo = false;
-            } 
-            else {
-                posOne = posOne - increment; 
-                posTwo = posTwo - increment;
-                slide1.style.left = `${posOne}px`; 
-                slide2.style.left = `${posTwo}px`; 
-            }
-        }
-
-    });
-} else {
-    console.log('arrowRight not found');
-}
-
-*/
 
 
 /*
