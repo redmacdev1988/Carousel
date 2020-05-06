@@ -1,0 +1,75 @@
+body, #slider, .wrap, .slide-content {
+
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    width: 100%;
+    height: 100vh;
+    overflow-x: hidden;
+    background-color: 'yellow';
+}
+
+#slider {
+    background-color: orange;
+    /*width: 200%;*/
+}
+
+.wrap {
+    position: relative;
+}
+
+.slide {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100%;
+    float: left;
+    position: absolute;
+}
+
+#slide1 {
+    /*background-image: url('images/palace_wall.jpg')*/
+}
+
+
+.slide-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+
+.slide-content span {
+    font-size: 5em;
+    color: #fff;
+}
+
+.arrow {
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    margin-top: -35px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    z-index: 999;
+    
+}
+
+#arrow-left {
+    border-width: 30px 40px 30px 0;
+    border-color: transparent #fff transparent transparent;
+    left: 0;
+    margin-left: 30px;
+}
+
+#arrow-right {
+    border-width: 30px 0px 30px 40px;
+    border-color: transparent transparent transparent white;
+    right: 0;
+    margin-right: 30px;
+}
