@@ -165,22 +165,23 @@ var CircularQueue = (function() {
     return CircularQueue;
 })();
 
-let circularQueue = new CircularQueue('slideshow');
+console.log('--- Set up Circular Queue ---');
 
-var Carousel = (function(DOM, WINDOW, queue) {
+let circularQueue = new CircularQueue('slideshow');
+circularQueue.insertData( 'http://127.0.0.1:5500/images/chang-an.jpg', 'chang-an');
+circularQueue.insertData( 'http://127.0.0.1:5500/images/flower-garden.jpg', 'flower-garden');
+circularQueue.insertData( 'http://127.0.0.1:5500/images/flower-garden2.jpg', 'flower-garden2');
+circularQueue.insertData( 'http://127.0.0.1:5500/images/palace_wall.jpg', 'palace_wall');
+
+var Carousel = (function(DOM, WINDOW, QUEUE) {
 
     let screenWidth;
     let screenHeight;
 
-    _createSlideWithImage = (bShowingSlideTwo, img1, img2) => {
+    _createSlideWithImage = (bShowingSlideTwo, imageURL) => {
         let slide = DOM.createElement("div");
-        if (!bShowingSlideTwo) {
-            slide.id = "slide2";
-            slide.style.backgroundImage = `url('${img2.src}')`;
-        } else {
-            slide.id = "slide1";
-            slide.style.backgroundImage = `url('${img1.src}')`;
-        }
+        slide.id = !bShowingSlideTwo ? "slide2" : "slide1";
+        slide.style.backgroundImage = `url('${imageURL}')`;
         slide.style.left = screenWidth + 'px';
         slide.className = 'slide';
         console.log(`Created Slide ${slide.id} where left is ${slide.style.left}`)
@@ -191,13 +192,18 @@ var Carousel = (function(DOM, WINDOW, queue) {
         let slideContent = DOM.createElement("div");
         slideContent.className = 'slide-content';
         let spanText = DOM.createElement('span');
-        spanText.innerHTML = (!bShowingSlideTwo) ? title1 : title2;
+        //spanText.innerHTML = (!bShowingSlideTwo) ? title1 : title2;
         slideContent.appendChild(spanText);
         return slideContent;
     }
 
-    _insertSlideIntoSlider = (bShowingSlideTwo, img1, img2, slideTwoText, slideOneText, sliderID) => {
-        let newSlide = _createSlideWithImage(bShowingSlideTwo, img1, img2);
+    _insertSlideIntoSlider = (bShowingSlideTwo, queue, slideTwoText, slideOneText, sliderID) => {
+        let imageURL;
+        queue.moveNext(function(from, to){
+            console.log(`${from.data} to ${to.data}`);
+            imageURL = to.data;
+        });
+        let newSlide = _createSlideWithImage(bShowingSlideTwo, imageURL);
         let slideContent = _createSlideContent(bShowingSlideTwo, slideTwoText, slideOneText);
         newSlide.appendChild(slideContent);
         let slider = DOM.getElementById(sliderID);
@@ -245,7 +251,7 @@ var Carousel = (function(DOM, WINDOW, queue) {
                 let bound = _animationFrame.bind(this, () => {
                     clearInterval(_animationIntervalID);
                     _removeSlideFromSlider(this._bShowingSlideTwo);
-                    this._slider = _insertSlideIntoSlider(this._bShowingSlideTwo, this._img1, this._img2, 'ImageTwo', 'Image One', 'slider');
+                    this._slider = _insertSlideIntoSlider(this._bShowingSlideTwo, this._circularQueue, '', '', 'slider');
                     this._slideTwo = DOM.querySelector('#slide2');
                     this._slideOne = DOM.querySelector('#slide1');
                     this._posOne = _getPosition(this._slideOne);
@@ -253,7 +259,7 @@ var Carousel = (function(DOM, WINDOW, queue) {
                     this._animateTime = 0;
                     this._animateInterval = 0;
                 });
-                _animationIntervalID = setInterval(bound, 10);
+                _animationIntervalID = setInterval(bound, 0);
             });
         } else { console.log('arrowRight not found'); }
     }
@@ -273,32 +279,27 @@ var Carousel = (function(DOM, WINDOW, queue) {
             screenHeight = WINDOW.innerHeight;
 
             // move all private variables here
-            
-            var _img1 = new Image();
-            _img1.src='http://127.0.0.1:5500/images/chang-an.jpg';    
-            var _img2 = new Image();
-            _img2.src='http://127.0.0.1:5500/images/palace_wall.jpg';
-
+            var _circularQueue = QUEUE;
+            _circularQueue.setCur('chang-an');
+            let image = circularQueue.getCur();
             var _bShowingSlideTwo = false;
-            
+
             // initiate slide 1
             var _slideOne = DOM.querySelector('#slide1');
             _slideOne.style.left = '0px';
-            _slideOne.style.backgroundImage = `url('${_img1.src}')`;
-            _slideOne.style.backgroundColor = 'red';
+            _slideOne.style.backgroundImage = `url('${image.data}')`;
 
             // to do look here how it is set up, and do similar
-            var _slider = _insertSlideIntoSlider(_bShowingSlideTwo, _img1, _img2, 'ImageTwo', 'Image One', 'slider');
+            var _slider = _insertSlideIntoSlider(_bShowingSlideTwo, _circularQueue, '', '', 'slider');
             var _slideTwo = DOM.querySelector('#slide2');
             var _posOne = _getPosition(_slideOne);
             var _posTwo = _getPosition(_slideTwo);
             var _animateTime = 0;
             var _animateInterval = 0;
+           
 
             let data = {
                 _bShowingSlideTwo,
-                _img1,
-                _img2,
                 _posOne,
                 _posTwo,
                 _slideOne,
@@ -308,6 +309,7 @@ var Carousel = (function(DOM, WINDOW, queue) {
                 _slider,
                 _animateTime,
                 _animateInterval,
+                _circularQueue,
             }
 
             // private function
@@ -333,6 +335,7 @@ var Carousel = (function(DOM, WINDOW, queue) {
 })(document, window, circularQueue);
 
 
+// how to use our Carousel
 let c = new Carousel(document, window, circularQueue);
 
 

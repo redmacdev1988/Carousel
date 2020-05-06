@@ -68,3 +68,9 @@ body, #slider, .wrap, .slide-content {
     right: 0;
     margin-right: 30px;
 }
+
+
+#preload-01 { background: url(http://127.0.0.1:5500/images/chang-an.jpg) no-repeat -9999px -9999px; }
+#preload-02 { background: url(http://127.0.0.1:5500/images/flower-garden.jpg) no-repeat -9999px -9999px; }
+#preload-03 { background: url(http://127.0.0.1:5500/images/flower-garden2.jpg) no-repeat -9999px -9999px; }
+#preload-04 { background: url(http://127.0.0.1:5500/images/palace_wall.jpg) no-repeat -9999px -9999px; }
