@@ -1,4 +1,4 @@
-body, #slider, .wrap, .slide-content {
+body, #slider, #Carousel, .slide-content {
 
     margin: 0;
     padding: 0;
@@ -9,12 +9,22 @@ body, #slider, .wrap, .slide-content {
     background-color: 'yellow';
 }
 
-#slider {
-    background-color: orange;
-    /*width: 200%;*/
+#MyWeather {
+    float: right; 
+    text-align: right;
+    padding: 10px 10px 10px 30px;
+    background: rgba(255, 255, 255, 0.5); 
+    border-bottom-left-radius: 30px;
 }
 
-.wrap {
+
+#slider {
+    background-color: black;
+    position: absolute;
+    z-index:-999;
+}
+
+#Carousel {
     position: relative;
 }
 

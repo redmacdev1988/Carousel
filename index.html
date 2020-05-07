@@ -7,7 +7,14 @@
     </head>
    
         <body style="font-family: Arial;border: 0 none;">
-            <div class="wrap">
+            <div class="Carousel">
+                <div id='MyWeather'>
+                    <div id='weather'>
+                        <b id="location"></b>
+                        <span id="temp"></span>
+                         <span id="description"></span>
+                     </div>
+                </div>
                     <div id="slider">
                         <div id="slide1" class="slide">
                             <div class='slide-content'>
@@ -19,6 +26,7 @@
             </div>
         <script type="module">
             import Carousel from './modules/Carousel.mjs'; 
+            import Weather from './modules/Weather.mjs'; 
         </script>
         </body>
 </html>
