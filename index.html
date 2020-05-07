@@ -5,11 +5,7 @@
         <title>My Home Page</title>
         <link rel="stylesheet" href="./style.css" > 
     </head>
-        <div id="preload-01"></div>
-        <div id="preload-02"></div>
-        <div id="preload-03"></div>
-        <div id="preload-04"></div>
-
+   
         <body style="font-family: Arial;border: 0 none;">
             <div class="wrap">
                     <div id="slider">
@@ -21,7 +17,8 @@
                     </div>
                 <div id="arrow-right" class="arrow"></div>
             </div>
-
-        <script src="./script.js" type="text/javascript"></script>
+        <script type="module">
+            import Carousel from './modules/Carousel.mjs'; 
+        </script>
         </body>
 </html>
