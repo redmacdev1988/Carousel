@@ -78,3 +78,50 @@ body, #slider, #Carousel, .slide-content {
     right: 0;
     margin-right: 30px;
 }
+
+/* Corona virus stats */
+#CoronaVirusStats { 
+    float: left; 
+    width: 23%; 
+    background: rgba(255, 255, 255, 0.5); 
+    height: 100vh;
+    overflow: hidden;
+}
+#CoronaVirusStats #sortText { margin-right: 15px; font-weight: 900; }
+#CoronaVirusStats #flagTable { 
+    text-align: left; 
+}
+#CoronaVirusStats #flagTable thead {
+    font-weight: 900;
+} 
+#CoronaVirusStats #flagTable tr td {
+    padding-right: 10px;
+    border: none;
+}
+#CoronaVirusStats ul li span { margin-left: 20px; }
+#CoronaVirusStats ul li img { vertical-align: middle; }
+#CoronaVirusStats #sortContent {
+    margin-top: -30px
+}
+#CoronaVirusStats #sortContent button { margin: 0;  }
+#CoronaVirusStats #sortContent #sortButtons { margin-top: 20px; margin-left: 20px; }
+#sortButtons ul {
+    text-transform: uppercase;
+    list-style: none;
+    display:inline-block;
+}
+#sortButtons ul li { 
+    display: inline;
+    justify-content: space-around;
+    list-style: none;
+}
+
+#flagTable {
+    width: 100%;
+}
+
+#coronaBtn img {
+    background: rgba(255, 0, 0, 0.8); 
+    padding: 6px;
+    border-radius: 10px;
+}

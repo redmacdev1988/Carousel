@@ -4,6 +4,12 @@
         <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
         <title>My Home Page</title>
         <link rel="stylesheet" href="./style.css" > 
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,900" rel="stylesheet">
+        <script type="module">
+            import Carousel from './modules/Carousel.mjs'; 
+            import Weather from './modules/Weather.mjs'; 
+            import coronaInstance from './modules/CoronaCases.mjs'; 
+        </script>
     </head>
    
         <body style="font-family: Arial;border: 0 none;">
@@ -15,6 +21,26 @@
                          <span id="description"></span>
                      </div>
                 </div>
+
+                <span id='coronaBtn'>
+                    <img src='./images/virus.png' />
+                </span>
+
+                <div id="CoronaVirusStats">
+                    
+                    <div id='sortContent'> 
+                      <div id='sortButtons'>
+                          <ul>
+                            <li><span id='sortText'>Sort by:</span></li>
+                            <li><button id='cases' type="button" class="btn hero__btn">cases</button></li>
+                            <li><button id='deaths' type="button" class="btn hero__btn">deaths</button></li>
+                          </ul>
+                      </div>
+                    </div>
+                    <div id='CoronaLoader' class="loader" style="display: none"></div>
+                </div>
+
+
                     <div id="slider">
                         <div id="slide1" class="slide">
                             <div class='slide-content'>
@@ -24,9 +50,8 @@
                     </div>
                 <div id="arrow-right" class="arrow"></div>
             </div>
-        <script type="module">
-            import Carousel from './modules/Carousel.mjs'; 
-            import Weather from './modules/Weather.mjs'; 
-        </script>
+
+           
+       
         </body>
 </html>
