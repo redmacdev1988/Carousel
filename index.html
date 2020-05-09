@@ -53,5 +53,74 @@
 
            
        
+            <ul class="container">
+                <li class="child" id="childA">A</li>
+                <li class="child" id="childB">B</li>
+              </ul>
+               
+              <button id='swap'>
+                Swap positions
+              </button>
+
+
+
+              <script>
+                    const childA = document.querySelector('#childA');
+                    const childB = document.querySelector('#childB');
+
+                    const finalChildAStyle = {
+                        x: null,
+                        y: null,
+                    };
+
+                    const finalChildBStyle = {
+                        x: null,
+                        y: null,
+                    };
+                    
+                    let swapDone = false;
+                    
+                    document.querySelector('#swap').addEventListener('click', () => {
+                        console.log('test swap');
+
+                    if (swapDone === false) {
+                        // add CSS property 'transition: transform ease-in 0.3s' for the animation
+                        childA.classList.add('transition');
+                        childB.classList.add('transition');
+
+                        let childAClientRect = childA.getBoundingClientRect()
+                        console.log(childAClientRect);
+                        // bottom: 66
+                        // height: 50
+                        // left: 433.546875
+                        // right: 733.546875
+                        // top: 16
+                        // width: 300
+                        // x: 433.546875
+                        // y: 16
+
+                        
+                        finalChildAStyle.x = childA.getBoundingClientRect().left - childB.getBoundingClientRect().left;
+                        finalChildAStyle.y = childB.getBoundingClientRect().top - childA.getBoundingClientRect().top;
+
+                        console.log(finalChildAStyle);
+                        
+                        finalChildBStyle.x = childB.getBoundingClientRect().left - childA.getBoundingClientRect().left;
+                        finalChildBStyle.y = childA.getBoundingClientRect().top - childB.getBoundingClientRect().top;
+                        childA.style.transform = `translate(${finalChildAStyle.x}px, ${finalChildAStyle.y}px)`;
+                        childB.style.transform = `translate(${finalChildBStyle.x}px, ${finalChildBStyle.y}px)`;
+                    
+                        setTimeout(() => {
+                        document.querySelector('.container').insertBefore(childB, childA);
+                        childA.classList.remove('transition');
+                        childB.classList.remove('transition');
+                        childB.removeAttribute('style');
+                        childA.removeAttribute('style');
+                        }, 300);
+                    }
+                    swapDone = true;
+                    });
+
+              </script>
         </body>
 </html>
