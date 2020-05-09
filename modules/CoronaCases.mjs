@@ -242,7 +242,50 @@ function styleTriggerBtn() {
     coronaBtn.style.backgroundImage = `url('http://127.0.0.1:5500/images/countryflags/virus.png')`;
 }
 
+let opened = true;
+
+function createEventHandlerForTriggerBtn() {
+    
+    let coronaBtn = document.querySelector('#coronaBtn');
+    let coronaVirusStatBckgnd = document.querySelector('#CoronaVirusStats');
+
+    coronaBtn.addEventListener('click', function() {
+        console.log('you clicked on the corona virus button');
+
+        if (!opened) {
+            for (let i = 0; i < 61; i++) {
+                setTimeout( function() {
+                    coronaBtn.style.transform = 'rotate( ' + i*3 + 'deg)';
+                    coronaBtn.style.left = (i * 7) + 'px';
+                    coronaVirusStatBckgnd.style.left =  (-422 + i * 7) + 'px';
+                    if (i==60) {
+                        coronaVirusStatBckgnd.style.left = '0px';
+                        coronaBtn.style.left = '422px';
+                    }
+                }, 4 * i);
+            }
+            opened = true;
+        } else {
+            for (let i = 0; i < 61; i++) {
+                setTimeout( function() {
+                    coronaBtn.style.transform = 'rotate( ' + (180-i*3) + 'deg)';
+                    coronaBtn.style.left = (422 - (i * 7)) + 'px';
+                    coronaVirusStatBckgnd.style.left =  (i * -7) + 'px';
+                    
+                    if (i==60) {
+                        coronaBtn.style.left = '10px';
+                    }
+                }, 4 * i);
+            }
+            opened = false;
+        } 
+    });
+}
+
+
 styleTriggerBtn();
+createEventHandlerForTriggerBtn();
+
 
 export default coronaInstance;
 

@@ -86,6 +86,8 @@ body, #slider, #Carousel, .slide-content {
     background: rgba(255, 255, 255, 0.5); 
     height: 100vh;
     overflow: hidden;
+    position: relative;
+    left: 0px;
 }
 #CoronaVirusStats #sortText { margin-right: 15px; font-weight: 900; }
 #CoronaVirusStats #flagTable { 
