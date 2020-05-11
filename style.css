@@ -87,6 +87,7 @@ body, #slider, #Carousel, .slide-content {
     overflow: hidden;
     position: relative;
     left: 0px;
+    width: 30%;
 }
 #CoronaVirusStats #sortText { margin-right: 15px; font-weight: 900; }
 #CoronaVirusStats #flagTable { 
@@ -98,6 +99,10 @@ body, #slider, #Carousel, .slide-content {
 #CoronaVirusStats #flagTable tr td {
     padding-right: 10px;
     border: none;
+}
+#CoronaVirusStats #flagTable tr td.country-name {
+    /*border: 2px solid red;*/
+    width: 150px;
 }
 #CoronaVirusStats ul li span { margin-left: 20px; }
 #CoronaVirusStats ul li img { vertical-align: middle; }

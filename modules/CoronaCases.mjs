@@ -2,15 +2,13 @@ const CASES_BY_COUNTRY_URL = 'https://coronavirus-monitor.p.rapidapi.com/coronav
 const X_RAPIDAPI_HOST = "coronavirus-monitor.p.rapidapi.com";
 const X_RAPIDAPI_KEY = "bceb3c6713msh7b978618cfc7a1fp146facjsn41317387a72a";
 const FLAGTABLE_CSS_ID = 'flagTable';
-const NUM_OF_COUNTRIES_TO_DISPLAY = 25;
+const NUM_OF_COUNTRIES_TO_DISPLAY = 20;
 
 var CoronaCases = (function() {
 
     // private variablsed used by scope
     let privateProps = new WeakMap(); 
-    let coronaStatsAppearFunc = Symbol('coronaStatsAppear func');
-    let coronaStatsDisappearFunc = Symbol('coronaStatsDisappear func');
-    let updateCoronaUIFunc = Symbol('updateCoronaUI func');
+    let createCoronaUIFunc = Symbol('createCoronaUI func');
     let animateCoronaUIFunc = Symbol('animateCoronaUI func');
 
     function getCountrySVGIconURL(countryName) {
@@ -39,24 +37,6 @@ var CoronaCases = (function() {
             this.data;
             this.table = document.getElementById(FLAGTABLE_CSS_ID);
 
-            this[coronaStatsAppearFunc] = (done) => {
-                let timeStep = 20; 
-                let timeFrame = 0;
-
-                for (let opacity = 0; opacity < 1.1; opacity = opacity + 0.1) {           
-                    timeFrame = timeFrame + timeStep + 2 * (opacity * opacity); 
-                    ((op, time) => {
-                    setTimeout(() => {
-                        this.table.style.opacity = op;
-                        if (op >= 1.1-0.1) { 
-                            if (done && (typeof done === 'function')) done(); 
-                        }
-                    }, time);
-                    })(opacity, timeFrame);
-                } 
-            } // CoronaStatsAppear
-            
-
             let imgFlag = (flagName='China') => {
                 let flagSize = privateProps.get(this).flagSize
                 let imgEle = document.createElement('img');
@@ -66,48 +46,103 @@ var CoronaCases = (function() {
                 return imgEle;
             }
 
-            this[animateCoronaUIFunc] = (prevData, callback) => {
+            
+            this[animateCoronaUIFunc] = (prevData, animateDone) => {
+                console.log('prevData', prevData);
+                console.log('this.data', this.data);
+                let BORDER_SPACING = 2;
+                let counter = 0;
+                let rows = document.querySelectorAll('#flagTable tr');
 
-                let heightOfEachRow = 26+2; // height + border-spacing;
-                // 1
-                let country = this.data[1];
-                let countryName = country.country_name;
-                console.log(countryName);
+                for (let i = 0; i < NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
+                    //let i = 16;
+                    let countryName = prevData[i].country_name;
+                    console.log('before countryName', countryName);
+                    if (countryName == 'S. Korea') {
+                        countryName = 'south korea';
+                    }
+                   
+                    countryName = countryName.replace(/\s+/g, '-');
+                    console.log('after countryName', countryName);
 
-                // 2)
-                let countryToMove = document.querySelector('#' + countryName);
-                console.log(countryToMove);
-                let boundRect = countryToMove.getBoundingClientRect();
-                console.log('boundRect', boundRect);
-                countryToMove.classList.add('transition');
+                    let indexOfCur = -1;
+                    this.data.map( function(currentValue, index) {
+                        let currentValueCountr = currentValue.country_name;
+                        currentValueCountr = currentValueCountr.replace(/\s+/g, '-');
+                        if (currentValueCountr == countryName) {
+                            indexOfCur = index;
+                        }
+                    });
 
-                console.log(prevData);
-                
-                // calculate 3
-                const countryMovePath = { x: 0, y: -heightOfEachRow * 3}; 
-                countryToMove.style.transform = `translate(${countryMovePath.x}px, ${countryMovePath.y}px)`;
+                    let countryToMove = document.querySelector('#' + countryName);
+                    if (!countryToMove) {
+                        console.log('Uh oh problem with ' + countryName);
+                    }
 
-        /*
+                    let boundRect = countryToMove.getBoundingClientRect();
+                    let heightOfRow = boundRect.height + BORDER_SPACING;
+                    countryToMove.classList.add('transition');
 
-        
-        // let childAClientRect = countryA.getBoundingClientRect()
-        // let childBClientRect = countryB.getBoundingClientRect();
-        countryAPath.x = countryA.getBoundingClientRect().left - countryB.getBoundingClientRect().left;
-        countryAPath.y = countryB.getBoundingClientRect().top - countryA.getBoundingClientRect().top;                        
-        countryBPath.x = countryB.getBoundingClientRect().left - countryA.getBoundingClientRect().left;
-        countryBPath.y = countryA.getBoundingClientRect().top - countryB.getBoundingClientRect().top;
-                */
+                    let indexOfPrev = i;
+                    let indexesToMove = indexOfPrev - indexOfCur;
 
+                    console.log(`indexOfPrev ${indexOfPrev}, indexOfCur ${indexOfCur}, indexesToMove ${indexesToMove}`);
+                    const countryMovePath = { x: 0, y: heightOfRow * -indexesToMove}; 
+
+                    console.log('countryMovePath', countryMovePath);
+                    countryToMove.style.transform = `translate(${countryMovePath.x}px, ${countryMovePath.y}px)`;
+
+                    setTimeout(() => {
+                        console.log('counter', counter);
+                        // we need to do the actual movement of the two li. 
+                        // if this is not put here, all we see is animation of b going up and a doing down.
+                        // then, it will flash back to a on top, and b on bottom.
+                        // By doing this, we finish the animation with the correct placements of these two li.
+                        //document.querySelector('#flagTable').insertBefore(countryToMove, countryPivot);
+
+                        // clear the usage of using CSS 'transform ease-in 0.3s' for the animation
+                        countryToMove.classList.remove('transition');
+                        countryToMove.removeAttribute('style');
+
+                        let newData = this.data[i];
+                        let cells = rows[i+1].getElementsByTagName('td');
+                        let deaths = newData.deaths;
+                        let cases = newData.cases;
+                        let intDeaths = parseFloat(deaths.replace(/,/g, ''));
+                        let intCases = parseFloat(cases.replace(/,/g, ''));
+                        let deathPercentage = (intDeaths / intCases) * 100;
+
+                        var imgData = document.createElement('td');
+                        var aFlag = imgFlag(newData.country_name);
+                        imgData.appendChild(aFlag);
+
+                        cells[0].innerHTML = imgData.innerHTML;
+                        cells[1].textContent = newData.country_name;
+                        cells[2].textContent = newData.cases;
+                        cells[3].textContent = newData.deaths;
+                        cells[4].textContent = deathPercentage.toFixed(2) + ' %';
+
+                        counter = counter + 1;
+                        if (counter >= NUM_OF_COUNTRIES_TO_DISPLAY) {
+                            console.log('ANIMATE TABLE done!!!!!!');
+                            animateDone();
+                        }
+                    }, 1000);
+                } // loop
+                console.log('end of function!');
             }
 
-            this[updateCoronaUIFunc] = callback => {
+
+            this[createCoronaUIFunc] = callback => {
                 if (!!this.table) {  // previous table exists, let's clear out its data
                     this.table.innerHTML = '';       
                 } else { // previous table does not exist, let's create one
                     this.table = document.createElement('table');
                     this.table.setAttribute('id', FLAGTABLE_CSS_ID);
                 }
-                this.table.style.opacity = 0;
+                //this.table.style.opacity = 0;
+                this.table.style.opacity = 1.0;
+
                 var header = this.table.createTHead();
                 var row = header.insertRow(0);
                 var flagHeader = row.insertCell(0);
@@ -128,6 +163,13 @@ var CoronaCases = (function() {
                 let numOfCountriesToDisplay = privateProps.get(this).numOfCountriesToDisplay;
                 for (var i = 0; i < numOfCountriesToDisplay; i++) {
                     let countryName = this.data[i].country_name;
+                    
+                    if (countryName == 'S. Korea') {
+                        countryName = 'south korea';
+                    }
+                    countryName = countryName.replace(/\s+/g, '-');
+                    
+
                     let deaths = this.data[i].deaths;
                     let cases = this.data[i].cases;
 
@@ -168,30 +210,10 @@ var CoronaCases = (function() {
                     tableRow.appendChild(percentageData);
                     this.table.appendChild(tableRow); // finally we add the row full of data
                 }
-                document.getElementById('CoronaVirusStats').appendChild(this.table);
-                this[coronaStatsAppearFunc](callback); 
+                document.getElementById('CoronaVirusStats').appendChild(this.table);       
+                callback();
             }
-            
 
-            this[coronaStatsDisappearFunc] = (animate=true, done) => {
-                if (animate) { 
-                    if (!this.table) done(null);
-                    let timeStep = 20; 
-                    let timeFrame = 0;
-                    for (let opacity = 1.1; opacity >= -0.1; opacity = opacity - 0.1) {           
-                            timeFrame = timeFrame + timeStep + 2 * (opacity * opacity); 
-                            ((op, time) => {
-                                setTimeout(() => {
-                                    if (this.table) {
-                                        this.table.style.opacity = op;
-                                        if (op < 0.0) {done();}
-                                    } 
-                                }, time);
-                            })(opacity, timeFrame);
-                    }  
-
-                } else { done(); }
-            } // coronaStatsDisappear 
         } // constructor
 
         
@@ -207,47 +229,50 @@ var CoronaCases = (function() {
         }
     
         // prototype function
-        updateData = (animateTable=true, byDeaths=false, cbFinish) => {     
-            this[coronaStatsDisappearFunc](animateTable?false:true, () => {  
-                /*
-                let loader = document.getElementById('CoronaLoader');
-                loader.style.display = 'block';
-                loader.style.position = 'relative';
-                loader.style.right = '-360px';
-                loader.style.top = '60px';
+        updateData = (byDeaths=false, cbFinish) => {     
+            
+            /*
+            let loader = document.getElementById('CoronaLoader');
+            loader.style.display = 'block';
+            loader.style.position = 'relative';
+            loader.style.right = '-360px';
+            loader.style.top = '60px';
 
-                if (this.table) this.table.innerHTML = loader;
-                */
+            if (this.table) this.table.innerHTML = loader;
+            */
 
-                this.fetchData()
-                .then(response => response.json())
-                .then(data => {
-                    console.log('updateData', data);
-                    let prevData = this.data;
-                    //loader.style.display = 'none';
-                    this.data = data.countries_stat;
+            this.fetchData()
+            .then(response => response.json())
+            .then(data => {
+                console.log('updateData', data);
+                let prevData = this.data;
+                //loader.style.display = 'none';
+                this.data = data.countries_stat;
+                if (byDeaths) {
+                    this.data.sort((a,b) => privateProps.get(this).decreasing(a, b, 'deaths'));
+                } else {
+                    this.data.sort((a,b) => privateProps.get(this).decreasing(a, b, 'cases'));
+                }
 
-                    console.log(prevData);
-                    console.log(this.data);
-                    if (byDeaths) {
-                        this.data.sort((a,b) => privateProps.get(this).decreasing(a, b, 'deaths'));
-                    } else {
-                        this.data.sort((a,b) => privateProps.get(this).decreasing(a, b, 'cases'));
-                    }
+                if (prevData) {
+                    this[animateCoronaUIFunc](prevData, () => {
+    
+                    });
+                } else {
+                    // change this name to createCoronaUI
+                    this[createCoronaUIFunc](cbFinish);
+                }
+                
 
-                    if (animateTable) {
-                        this[animateCoronaUIFunc](prevData, cbFinish);
-                    } else this[updateCoronaUIFunc](cbFinish);
-
-                }).catch(err => { console.log(err);});
-            });
+            }).catch(err => { console.log(err);});
+           
         } // updateData          
     } // class
     return CoronaCases;
 })();
     
 var coronaInstance = new CoronaCases(CASES_BY_COUNTRY_URL, X_RAPIDAPI_HOST, X_RAPIDAPI_KEY);
-coronaInstance.updateData(false, false, function() {
+coronaInstance.updateData(false, function() {
     styleTriggerBtn();
     //animateItemToItem('USA', 'Spain');
 }); 
@@ -259,7 +284,7 @@ coronaInstance.updateData(false, false, function() {
 
 function deaths() {
     console.log('clicked deaths button')
-    coronaInstance.updateData(true, true, function() {
+    coronaInstance.updateData(true, function() {
         /*
         var rows = document.getElementById(FLAGTABLE_CSS_ID).getElementsByTagName('tr');
         for (let i = 1; i <= NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
@@ -271,7 +296,7 @@ function deaths() {
 }
 
 function cases() {
-    coronaInstance.updateData(true, false, function() {
+    coronaInstance.updateData(false, function() {
         /*
         var rows = document.getElementById(FLAGTABLE_CSS_ID).getElementsByTagName('tr');
         for (let i = 1; i <= NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
