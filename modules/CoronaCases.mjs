@@ -10,8 +10,8 @@ var CoronaCases = (function() {
     let privateProps = new WeakMap(); 
     let coronaStatsAppearFunc = Symbol('coronaStatsAppear func');
     let coronaStatsDisappearFunc = Symbol('coronaStatsDisappear func');
-    let decreasingFunc = Symbol('decreasing func');
     let updateCoronaUIFunc = Symbol('updateCoronaUI func');
+    let animateCoronaUIFunc = Symbol('animateCoronaUI func');
 
     function getCountrySVGIconURL(countryName) {
         return 'http://127.0.0.1:5500/images/countryflags/' + countryName + '.svg';
@@ -42,7 +42,6 @@ var CoronaCases = (function() {
             this[coronaStatsAppearFunc] = (done) => {
                 let timeStep = 20; 
                 let timeFrame = 0;
-                let slowDown = 0;
 
                 for (let opacity = 0; opacity < 1.1; opacity = opacity + 0.1) {           
                     timeFrame = timeFrame + timeStep + 2 * (opacity * opacity); 
@@ -67,14 +66,47 @@ var CoronaCases = (function() {
                 return imgEle;
             }
 
+            this[animateCoronaUIFunc] = (prevData, callback) => {
+
+                let heightOfEachRow = 26+2; // height + border-spacing;
+                // 1
+                let country = this.data[1];
+                let countryName = country.country_name;
+                console.log(countryName);
+
+                // 2)
+                let countryToMove = document.querySelector('#' + countryName);
+                console.log(countryToMove);
+                let boundRect = countryToMove.getBoundingClientRect();
+                console.log('boundRect', boundRect);
+                countryToMove.classList.add('transition');
+
+                console.log(prevData);
+                
+                // calculate 3
+                const countryMovePath = { x: 0, y: -heightOfEachRow * 3}; 
+                countryToMove.style.transform = `translate(${countryMovePath.x}px, ${countryMovePath.y}px)`;
+
+        /*
+
+        
+        // let childAClientRect = countryA.getBoundingClientRect()
+        // let childBClientRect = countryB.getBoundingClientRect();
+        countryAPath.x = countryA.getBoundingClientRect().left - countryB.getBoundingClientRect().left;
+        countryAPath.y = countryB.getBoundingClientRect().top - countryA.getBoundingClientRect().top;                        
+        countryBPath.x = countryB.getBoundingClientRect().left - countryA.getBoundingClientRect().left;
+        countryBPath.y = countryA.getBoundingClientRect().top - countryB.getBoundingClientRect().top;
+                */
+
+            }
+
             this[updateCoronaUIFunc] = callback => {
-                if (!!this.table) { 
+                if (!!this.table) {  // previous table exists, let's clear out its data
                     this.table.innerHTML = '';       
-                } else {
+                } else { // previous table does not exist, let's create one
                     this.table = document.createElement('table');
                     this.table.setAttribute('id', FLAGTABLE_CSS_ID);
                 }
-
                 this.table.style.opacity = 0;
                 var header = this.table.createTHead();
                 var row = header.insertRow(0);
@@ -104,56 +136,61 @@ var CoronaCases = (function() {
                     let deathPercentage = (intDeaths / intCases) * 100;
 
                     var tableRow = document.createElement('tr');
+                    tableRow.setAttribute('id', countryName);
+
                     var imgData = document.createElement('td');
                     var aFlag = imgFlag(countryName);
                     imgData.appendChild(aFlag);
                     tableRow.appendChild(imgData); // row add data
 
                     var countryData = document.createElement("td"); 
-                    countryData.setAttribute('class', countryName );
+                    countryData.setAttribute('class', 'country-name' );
                     var countrySpanContents = document.createTextNode(countryName);
                     countryData.appendChild(countrySpanContents);  // row add data
                     tableRow.appendChild(countryData);
 
-
                     var casesData = document.createElement("td"); 
+                    casesData.setAttribute('class', 'cases');
                     var casesSpanContents = document.createTextNode(cases);
                     casesData.appendChild(casesSpanContents); 
                     tableRow.appendChild(casesData);
 
                     var deathData = document.createElement("td"); 
+                    deathData.setAttribute('class', 'death');
                     var deathSpanContents = document.createTextNode(deaths);
                     deathData.appendChild(deathSpanContents); 
                     tableRow.appendChild(deathData);
 
-
                     var percentageData = document.createElement("td"); 
+                    percentageData.setAttribute('class', 'percentage');
                     var percentageSpanContents = document.createTextNode(deathPercentage.toFixed(2) + ' %');
                     percentageData.appendChild(percentageSpanContents); 
                     tableRow.appendChild(percentageData);
                     this.table.appendChild(tableRow); // finally we add the row full of data
-
                 }
                 document.getElementById('CoronaVirusStats').appendChild(this.table);
                 this[coronaStatsAppearFunc](callback); 
             }
             
 
-            this[coronaStatsDisappearFunc] = done => {
-                if (!this.table) done(null);
-                let timeStep = 20; 
-                let timeFrame = 0;
-                for (let opacity = 1.1; opacity >= -0.1; opacity = opacity - 0.1) {           
-                        timeFrame = timeFrame + timeStep + 2 * (opacity * opacity); 
-                        ((op, time) => {
-                            setTimeout(() => {
-                                if (this.table) {
-                                    this.table.style.opacity = op;
-                                    if (op < 0.0) {done();}
-                                } 
-                            }, time);
-                        })(opacity, timeFrame);
-                }  
+            this[coronaStatsDisappearFunc] = (animate=true, done) => {
+                if (animate) { 
+                    if (!this.table) done(null);
+                    let timeStep = 20; 
+                    let timeFrame = 0;
+                    for (let opacity = 1.1; opacity >= -0.1; opacity = opacity - 0.1) {           
+                            timeFrame = timeFrame + timeStep + 2 * (opacity * opacity); 
+                            ((op, time) => {
+                                setTimeout(() => {
+                                    if (this.table) {
+                                        this.table.style.opacity = op;
+                                        if (op < 0.0) {done();}
+                                    } 
+                                }, time);
+                            })(opacity, timeFrame);
+                    }  
+
+                } else { done(); }
             } // coronaStatsDisappear 
         } // constructor
 
@@ -170,8 +207,9 @@ var CoronaCases = (function() {
         }
     
         // prototype function
-        updateData = (byDeaths=false, cbFinish) => {     
-            this[coronaStatsDisappearFunc](() => {  
+        updateData = (animateTable=true, byDeaths=false, cbFinish) => {     
+            this[coronaStatsDisappearFunc](animateTable?false:true, () => {  
+                /*
                 let loader = document.getElementById('CoronaLoader');
                 loader.style.display = 'block';
                 loader.style.position = 'relative';
@@ -179,21 +217,28 @@ var CoronaCases = (function() {
                 loader.style.top = '60px';
 
                 if (this.table) this.table.innerHTML = loader;
+                */
 
                 this.fetchData()
                 .then(response => response.json())
                 .then(data => {
-                    console.log('data', data);
-                    loader.style.display = 'none';
-                    if (this.table) this.table.innerHTML = '';
+                    console.log('updateData', data);
+                    let prevData = this.data;
+                    //loader.style.display = 'none';
                     this.data = data.countries_stat;
+
+                    console.log(prevData);
+                    console.log(this.data);
                     if (byDeaths) {
                         this.data.sort((a,b) => privateProps.get(this).decreasing(a, b, 'deaths'));
                     } else {
                         this.data.sort((a,b) => privateProps.get(this).decreasing(a, b, 'cases'));
                     }
 
-                    this[updateCoronaUIFunc](cbFinish);
+                    if (animateTable) {
+                        this[animateCoronaUIFunc](prevData, cbFinish);
+                    } else this[updateCoronaUIFunc](cbFinish);
+
                 }).catch(err => { console.log(err);});
             });
         } // updateData          
@@ -202,78 +247,89 @@ var CoronaCases = (function() {
 })();
     
 var coronaInstance = new CoronaCases(CASES_BY_COUNTRY_URL, X_RAPIDAPI_HOST, X_RAPIDAPI_KEY);
-coronaInstance.updateData(false); 
+coronaInstance.updateData(false, false, function() {
+    styleTriggerBtn();
+    //animateItemToItem('USA', 'Spain');
+}); 
+
+
+// create handlers for clicking on btns:
+// 1) deaths
+// 2) cases
 
 function deaths() {
-    console.log('hahahah');
-    coronaInstance.updateData(true, function() {
+    console.log('clicked deaths button')
+    coronaInstance.updateData(true, true, function() {
+        /*
         var rows = document.getElementById(FLAGTABLE_CSS_ID).getElementsByTagName('tr');
         for (let i = 1; i <= NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
           var tds = rows[i].getElementsByTagName('td');
           tds[3].style.color = 'red';
         }
+        */
     }); 
 }
 
 function cases() {
-    coronaInstance.updateData(false, function() {
+    coronaInstance.updateData(true, false, function() {
+        /*
         var rows = document.getElementById(FLAGTABLE_CSS_ID).getElementsByTagName('tr');
         for (let i = 1; i <= NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
           var tds = rows[i].getElementsByTagName('td');
           tds[2].style.color = 'orange';
         }
+        */
+
     }); 
 }
 
-// click handlers
 document.querySelector('#deaths').addEventListener("click", deaths);
 document.querySelector('#cases').addEventListener("click", cases);
 
+
+//// for animating corona button /////////
+let opened = true;
+let coronaVirusBckgndWidth = 0;
 
 function styleTriggerBtn() {
     let coronaBtn = document.querySelector('#coronaBtn');
     coronaBtn.style.position ='absolute';
     coronaBtn.style.top ='50%';
-
     let coronaVirusStatBckgnd = document.querySelector('#CoronaVirusStats');
-    console.log(coronaVirusStatBckgnd.offsetWidth);
-
+    coronaVirusBckgndWidth = coronaVirusStatBckgnd.offsetWidth;
     coronaBtn.style.left = coronaVirusStatBckgnd.offsetWidth + (coronaBtn.offsetWidth/3) + 'px';
     coronaBtn.style.backgroundImage = `url('http://127.0.0.1:5500/images/countryflags/virus.png')`;
 }
 
-let opened = true;
-
 function createEventHandlerForTriggerBtn() {
-    
     let coronaBtn = document.querySelector('#coronaBtn');
     let coronaVirusStatBckgnd = document.querySelector('#CoronaVirusStats');
-
     coronaBtn.addEventListener('click', function() {
         console.log('you clicked on the corona virus button');
-
-        if (!opened) {
+        if (!opened) { // open it
+            let increment = (coronaVirusBckgndWidth/60);
             for (let i = 0; i < 61; i++) {
                 setTimeout( function() {
                     coronaBtn.style.transform = 'rotate( ' + i*3 + 'deg)';
-                    coronaBtn.style.left = (i * 7) + 'px';
-                    coronaVirusStatBckgnd.style.left =  (-422 + i * 7) + 'px';
+                    coronaBtn.style.left = (i * increment) + 10 + 'px';
+                    coronaVirusStatBckgnd.style.left =  (-1 * coronaVirusBckgndWidth + i * increment) + 'px';
                     if (i==60) {
                         coronaVirusStatBckgnd.style.left = '0px';
-                        coronaBtn.style.left = '422px';
+                        coronaBtn.style.left = coronaVirusBckgndWidth + 10 + 'px';
                     }
                 }, 4 * i);
             }
             opened = true;
-        } else {
+        } else { // close it
+            let increment = (coronaVirusBckgndWidth/60);
             for (let i = 0; i < 61; i++) {
                 setTimeout( function() {
                     coronaBtn.style.transform = 'rotate( ' + (180-i*3) + 'deg)';
-                    coronaBtn.style.left = (422 - (i * 7)) + 'px';
-                    coronaVirusStatBckgnd.style.left =  (i * -7) + 'px';
-                    
+                    coronaBtn.style.left = (coronaVirusBckgndWidth - (i * increment)) + 10 + 'px';
+                    coronaVirusStatBckgnd.style.left =  (i * -increment) + 'px';
                     if (i==60) {
                         coronaBtn.style.left = '10px';
+                        coronaBtn.style.left = -1*coronaVirusBckgndWidth;
                     }
                 }, 4 * i);
             }
@@ -282,9 +338,108 @@ function createEventHandlerForTriggerBtn() {
     });
 }
 
-
-styleTriggerBtn();
 createEventHandlerForTriggerBtn();
+
+//////////////
+
+// 
+
+function animateItemToItem(countryNameA, countryNameB) {
+    console.log('animateItemToItem');
+
+    const countryAPath = { x: null, y: null, };
+    const countryBPath = { x: null, y: null, };
+
+    document.querySelector('#test').addEventListener('click', () => {
+        console.log('test');
+
+        const countryA = document.querySelector('#' + countryNameA);
+        const countryB = document.querySelector('#' + countryNameB);
+
+        console.log(countryA);
+        console.log(countryB);
+
+        countryA.classList.add('transition');
+        countryB.classList.add('transition');
+
+        // let childAClientRect = countryA.getBoundingClientRect()
+        // let childBClientRect = countryB.getBoundingClientRect();
+        countryAPath.x = countryA.getBoundingClientRect().left - countryB.getBoundingClientRect().left;
+        countryAPath.y = countryB.getBoundingClientRect().top - countryA.getBoundingClientRect().top;                        
+        countryBPath.x = countryB.getBoundingClientRect().left - countryA.getBoundingClientRect().left;
+        countryBPath.y = countryA.getBoundingClientRect().top - countryB.getBoundingClientRect().top;
+
+        console.log(countryAPath);
+        console.log(countryBPath);
+
+        // transform A -50 pixel down on the y-axis
+        countryA.style.transform = `translate(${countryAPath.x}px, ${countryAPath.y}px)`;
+
+        // transform B 50 pixels up on the y-axis
+        countryB.style.transform = `translate(${countryBPath.x}px, ${countryBPath.y}px)`;
+    });
+}
+
+
+/*
+const childA = document.querySelector('#childA');
+                    const childB = document.querySelector('#childB');
+                    const finalChildAStyle = { x: null, y: null, };
+                    const finalChildBStyle = { x: null, y: null, };
+
+                    let swapDone = false;
+                    
+                    document.querySelector('#swap').addEventListener('click', () => {
+                        console.log('test swap');
+
+                    if (swapDone === false) {
+                        // add CSS property 'transition: transform ease-in 0.3s' for the animation
+                        // if we do not use this, we simply get a quick switch of data from the two li
+                        childA.classList.add('transition');
+                        childB.classList.add('transition');
+
+                        let childAClientRect = childA.getBoundingClientRect()
+                        let childBClientRect = childB.getBoundingClientRect();
+                        
+                        finalChildAStyle.x = childA.getBoundingClientRect().left - childB.getBoundingClientRect().left;
+                        finalChildAStyle.y = childB.getBoundingClientRect().top - childA.getBoundingClientRect().top;                        
+                        finalChildBStyle.x = childB.getBoundingClientRect().left - childA.getBoundingClientRect().left;
+                        finalChildBStyle.y = childA.getBoundingClientRect().top - childB.getBoundingClientRect().top;
+
+                        console.log('a', childAClientRect);
+                        console.log('b', childBClientRect);
+
+                        console.log(finalChildAStyle);
+                        console.log(finalChildBStyle);
+
+                        // transform A -50 pixel down on the y-axis
+                        childA.style.transform = `translate(${finalChildAStyle.x}px, ${finalChildAStyle.y}px)`;
+
+                        // transform B 50 pixels up on the y-axis
+                        childB.style.transform = `translate(${finalChildBStyle.x}px, ${finalChildBStyle.y}px)`;
+                    
+                        // done once
+                        // if we do not use 
+                        setTimeout(() => {
+
+                            // we need to do the actual movement of the two li. 
+                            // if this is not put here, all we see is animation of b going up and a doing down.
+                            // then, it will flash back to a on top, and b on bottom.
+                            // By doing this, we finisht the animation with the correct placements of these two li.
+                            document.querySelector('.container').insertBefore(childB, childA);
+
+                            // clear the usage of using CSS 'transform ease-in 0.3s' for the animation
+                            childA.classList.remove('transition');
+                            childB.classList.remove('transition');
+
+                            // clear the transfrom from style
+                            childB.removeAttribute('style');
+                            childA.removeAttribute('style');
+                        }, 300);
+                    }
+                    swapDone = true;
+                    });
+*/
 
 
 export default coronaInstance;

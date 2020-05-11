@@ -82,7 +82,6 @@ body, #slider, #Carousel, .slide-content {
 /* Corona virus stats */
 #CoronaVirusStats { 
     float: left; 
-    width: 23%; 
     background: rgba(255, 255, 255, 0.5); 
     height: 100vh;
     overflow: hidden;
@@ -128,8 +127,17 @@ body, #slider, #Carousel, .slide-content {
     border-radius: 10px;
 }
 
+#coronaBtn {
+    top: 50%;
+}
 
 /* example */
+
+.container {
+    float: right;
+    border: 2px solid red;
+    width: 20%;
+}
 .child {
     display: flex;
     align-items: center;
@@ -138,7 +146,7 @@ body, #slider, #Carousel, .slide-content {
     height: 50px;  
   }
    
-  .child.transition {
+.transition {
     transition: transform ease-in 0.3s;
   }
    
@@ -146,3 +154,5 @@ body, #slider, #Carousel, .slide-content {
     padding: 5px;
     margin-top: 2rem;
   }
+  
+  

@@ -32,8 +32,9 @@
                       <div id='sortButtons'>
                           <ul>
                             <li><span id='sortText'>Sort by:</span></li>
-                            <li><button id='cases' type="button" class="btn hero__btn">cases</button></li>
-                            <li><button id='deaths' type="button" class="btn hero__btn">deaths</button></li>
+                            <li><button id='cases' type="button" class="btn">cases</button></li>
+                            <li><button id='deaths' type="button" class="btn">deaths</button></li>
+                            <li><button id='test' type='button' class='btn'>test</button></li>
                           </ul>
                       </div>
                     </div>
@@ -56,28 +57,20 @@
             <ul class="container">
                 <li class="child" id="childA">A</li>
                 <li class="child" id="childB">B</li>
-              </ul>
-               
-              <button id='swap'>
-                Swap positions
-              </button>
-
-
+                <li> <button id='swap'>
+                    Swap positions
+                  </button>
+                </li>
+            </ul>
+             
 
               <script>
+                  
                     const childA = document.querySelector('#childA');
                     const childB = document.querySelector('#childB');
+                    const finalChildAStyle = { x: null, y: null, };
+                    const finalChildBStyle = { x: null, y: null, };
 
-                    const finalChildAStyle = {
-                        x: null,
-                        y: null,
-                    };
-
-                    const finalChildBStyle = {
-                        x: null,
-                        y: null,
-                    };
-                    
                     let swapDone = false;
                     
                     document.querySelector('#swap').addEventListener('click', () => {
@@ -85,42 +78,52 @@
 
                     if (swapDone === false) {
                         // add CSS property 'transition: transform ease-in 0.3s' for the animation
+                        // if we do not use this, we simply get a quick switch of data from the two li
                         childA.classList.add('transition');
                         childB.classList.add('transition');
 
                         let childAClientRect = childA.getBoundingClientRect()
-                        console.log(childAClientRect);
-                        // bottom: 66
-                        // height: 50
-                        // left: 433.546875
-                        // right: 733.546875
-                        // top: 16
-                        // width: 300
-                        // x: 433.546875
-                        // y: 16
-
+                        let childBClientRect = childB.getBoundingClientRect();
                         
                         finalChildAStyle.x = childA.getBoundingClientRect().left - childB.getBoundingClientRect().left;
-                        finalChildAStyle.y = childB.getBoundingClientRect().top - childA.getBoundingClientRect().top;
-
-                        console.log(finalChildAStyle);
-                        
+                        finalChildAStyle.y = childB.getBoundingClientRect().top - childA.getBoundingClientRect().top;                        
                         finalChildBStyle.x = childB.getBoundingClientRect().left - childA.getBoundingClientRect().left;
                         finalChildBStyle.y = childA.getBoundingClientRect().top - childB.getBoundingClientRect().top;
+
+                        console.log('a', childAClientRect);
+                        console.log('b', childBClientRect);
+
+                        console.log(finalChildAStyle);
+                        console.log(finalChildBStyle);
+
+                        // transform A -50 pixel down on the y-axis
                         childA.style.transform = `translate(${finalChildAStyle.x}px, ${finalChildAStyle.y}px)`;
+
+                        // transform B 50 pixels up on the y-axis
                         childB.style.transform = `translate(${finalChildBStyle.x}px, ${finalChildBStyle.y}px)`;
                     
+                        // done once
+                        // if we do not use 
                         setTimeout(() => {
-                        document.querySelector('.container').insertBefore(childB, childA);
-                        childA.classList.remove('transition');
-                        childB.classList.remove('transition');
-                        childB.removeAttribute('style');
-                        childA.removeAttribute('style');
+
+                            // we need to do the actual movement of the two li. 
+                            // if this is not put here, all we see is animation of b going up and a doing down.
+                            // then, it will flash back to a on top, and b on bottom.
+                            // By doing this, we finisht the animation with the correct placements of these two li.
+                            document.querySelector('.container').insertBefore(childB, childA);
+
+                            // clear the usage of using CSS 'transform ease-in 0.3s' for the animation
+                            childA.classList.remove('transition');
+                            childB.classList.remove('transition');
+
+                            // clear the transfrom from style
+                            childB.removeAttribute('style');
+                            childA.removeAttribute('style');
                         }, 300);
                     }
                     swapDone = true;
                     });
-
+                    
               </script>
         </body>
 </html>
