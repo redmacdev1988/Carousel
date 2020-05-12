@@ -2,7 +2,7 @@ const CASES_BY_COUNTRY_URL = 'https://coronavirus-monitor.p.rapidapi.com/coronav
 const X_RAPIDAPI_HOST = "coronavirus-monitor.p.rapidapi.com";
 const X_RAPIDAPI_KEY = "bceb3c6713msh7b978618cfc7a1fp146facjsn41317387a72a";
 const FLAGTABLE_CSS_ID = 'flagTable';
-const NUM_OF_COUNTRIES_TO_DISPLAY = 20;
+const NUM_OF_COUNTRIES_TO_DISPLAY = 45;
 
 var CoronaCases = (function() {
 
@@ -56,29 +56,19 @@ var CoronaCases = (function() {
 
                 for (let i = 0; i < NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
                     //let i = 16;
-                    let countryName = prevData[i].country_name;
-                    console.log('before countryName', countryName);
-                    if (countryName == 'S. Korea') {
-                        countryName = 'south korea';
-                    }
-                   
-                    countryName = countryName.replace(/\s+/g, '-');
-                    console.log('after countryName', countryName);
+                    let prevCountryName = prevData[i].country_name;
 
                     let indexOfCur = -1;
-                    this.data.map( function(currentValue, index) {
-                        let currentValueCountr = currentValue.country_name;
-                        currentValueCountr = currentValueCountr.replace(/\s+/g, '-');
-                        if (currentValueCountr == countryName) {
-                            indexOfCur = index;
-                        }
+                    this.data.map( function(currentCountry, index) {
+                        //console.log('currentCountry.country_name', currentCountry.country_name)
+                        //console.log('prevCountryName', prevCountryName);
+                        if (currentCountry.country_name == prevCountryName) { indexOfCur = index; }
                     });
 
-                    let countryToMove = document.querySelector('#' + countryName);
-                    if (!countryToMove) {
-                        console.log('Uh oh problem with ' + countryName);
-                    }
+                    let hypened = prevCountryName.replace(/\s+/g, '-');
 
+                    let countryToMove = document.querySelector('#' + hypened);
+                    if (!countryToMove) { console.log('Uh oh problem with ' + hypened); }
                     let boundRect = countryToMove.getBoundingClientRect();
                     let heightOfRow = boundRect.height + BORDER_SPACING;
                     countryToMove.classList.add('transition');
@@ -93,18 +83,13 @@ var CoronaCases = (function() {
                     countryToMove.style.transform = `translate(${countryMovePath.x}px, ${countryMovePath.y}px)`;
 
                     setTimeout(() => {
-                        console.log('counter', counter);
-                        // we need to do the actual movement of the two li. 
-                        // if this is not put here, all we see is animation of b going up and a doing down.
-                        // then, it will flash back to a on top, and b on bottom.
-                        // By doing this, we finish the animation with the correct placements of these two li.
-                        //document.querySelector('#flagTable').insertBefore(countryToMove, countryPivot);
-
                         // clear the usage of using CSS 'transform ease-in 0.3s' for the animation
                         countryToMove.classList.remove('transition');
                         countryToMove.removeAttribute('style');
 
                         let newData = this.data[i];
+                        let hypened = newData.country_name.replace(/\s+/g, '-');
+                        rows[i+1].id = hypened;
                         let cells = rows[i+1].getElementsByTagName('td');
                         let deaths = newData.deaths;
                         let cases = newData.cases;
@@ -113,7 +98,7 @@ var CoronaCases = (function() {
                         let deathPercentage = (intDeaths / intCases) * 100;
 
                         var imgData = document.createElement('td');
-                        var aFlag = imgFlag(newData.country_name);
+                        var aFlag = imgFlag(hypened);
                         imgData.appendChild(aFlag);
 
                         cells[0].innerHTML = imgData.innerHTML;
@@ -127,7 +112,7 @@ var CoronaCases = (function() {
                             console.log('ANIMATE TABLE done!!!!!!');
                             animateDone();
                         }
-                    }, 1000);
+                    }, 860);
                 } // loop
                 console.log('end of function!');
             }
@@ -163,13 +148,8 @@ var CoronaCases = (function() {
                 let numOfCountriesToDisplay = privateProps.get(this).numOfCountriesToDisplay;
                 for (var i = 0; i < numOfCountriesToDisplay; i++) {
                     let countryName = this.data[i].country_name;
+                    let hypened = countryName.replace(/\s+/g, '-');
                     
-                    if (countryName == 'S. Korea') {
-                        countryName = 'south korea';
-                    }
-                    countryName = countryName.replace(/\s+/g, '-');
-                    
-
                     let deaths = this.data[i].deaths;
                     let cases = this.data[i].cases;
 
@@ -178,16 +158,16 @@ var CoronaCases = (function() {
                     let deathPercentage = (intDeaths / intCases) * 100;
 
                     var tableRow = document.createElement('tr');
-                    tableRow.setAttribute('id', countryName);
+                    tableRow.setAttribute('id', hypened);
 
                     var imgData = document.createElement('td');
-                    var aFlag = imgFlag(countryName);
+                    var aFlag = imgFlag(hypened);
                     imgData.appendChild(aFlag);
                     tableRow.appendChild(imgData); // row add data
 
                     var countryData = document.createElement("td"); 
                     countryData.setAttribute('class', 'country-name' );
-                    var countrySpanContents = document.createTextNode(countryName);
+                    var countrySpanContents = document.createTextNode(hypened);
                     countryData.appendChild(countrySpanContents);  // row add data
                     tableRow.appendChild(countryData);
 
@@ -256,8 +236,7 @@ var CoronaCases = (function() {
 
                 if (prevData) {
                     this[animateCoronaUIFunc](prevData, () => {
-    
-                    });
+                });
                 } else {
                     // change this name to createCoronaUI
                     this[createCoronaUIFunc](cbFinish);
@@ -274,38 +253,15 @@ var CoronaCases = (function() {
 var coronaInstance = new CoronaCases(CASES_BY_COUNTRY_URL, X_RAPIDAPI_HOST, X_RAPIDAPI_KEY);
 coronaInstance.updateData(false, function() {
     styleTriggerBtn();
-    //animateItemToItem('USA', 'Spain');
 }); 
-
-
-// create handlers for clicking on btns:
-// 1) deaths
-// 2) cases
 
 function deaths() {
     console.log('clicked deaths button')
-    coronaInstance.updateData(true, function() {
-        /*
-        var rows = document.getElementById(FLAGTABLE_CSS_ID).getElementsByTagName('tr');
-        for (let i = 1; i <= NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
-          var tds = rows[i].getElementsByTagName('td');
-          tds[3].style.color = 'red';
-        }
-        */
-    }); 
+    coronaInstance.updateData(true, function() {}); 
 }
 
 function cases() {
-    coronaInstance.updateData(false, function() {
-        /*
-        var rows = document.getElementById(FLAGTABLE_CSS_ID).getElementsByTagName('tr');
-        for (let i = 1; i <= NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
-          var tds = rows[i].getElementsByTagName('td');
-          tds[2].style.color = 'orange';
-        }
-        */
-
-    }); 
+    coronaInstance.updateData(false, function() {}); 
 }
 
 document.querySelector('#deaths').addEventListener("click", deaths);
@@ -323,7 +279,7 @@ function styleTriggerBtn() {
     let coronaVirusStatBckgnd = document.querySelector('#CoronaVirusStats');
     coronaVirusBckgndWidth = coronaVirusStatBckgnd.offsetWidth;
     coronaBtn.style.left = coronaVirusStatBckgnd.offsetWidth + (coronaBtn.offsetWidth/3) + 'px';
-    coronaBtn.style.backgroundImage = `url('http://127.0.0.1:5500/images/countryflags/virus.png')`;
+    coronaBtn.style.backgroundImage = `url('http://127.0.0.1:5500/images/virus.png')`;
 }
 
 function createEventHandlerForTriggerBtn() {
@@ -365,108 +321,5 @@ function createEventHandlerForTriggerBtn() {
 
 createEventHandlerForTriggerBtn();
 
-//////////////
-
-// 
-
-function animateItemToItem(countryNameA, countryNameB) {
-    console.log('animateItemToItem');
-
-    const countryAPath = { x: null, y: null, };
-    const countryBPath = { x: null, y: null, };
-
-    document.querySelector('#test').addEventListener('click', () => {
-        console.log('test');
-
-        const countryA = document.querySelector('#' + countryNameA);
-        const countryB = document.querySelector('#' + countryNameB);
-
-        console.log(countryA);
-        console.log(countryB);
-
-        countryA.classList.add('transition');
-        countryB.classList.add('transition');
-
-        // let childAClientRect = countryA.getBoundingClientRect()
-        // let childBClientRect = countryB.getBoundingClientRect();
-        countryAPath.x = countryA.getBoundingClientRect().left - countryB.getBoundingClientRect().left;
-        countryAPath.y = countryB.getBoundingClientRect().top - countryA.getBoundingClientRect().top;                        
-        countryBPath.x = countryB.getBoundingClientRect().left - countryA.getBoundingClientRect().left;
-        countryBPath.y = countryA.getBoundingClientRect().top - countryB.getBoundingClientRect().top;
-
-        console.log(countryAPath);
-        console.log(countryBPath);
-
-        // transform A -50 pixel down on the y-axis
-        countryA.style.transform = `translate(${countryAPath.x}px, ${countryAPath.y}px)`;
-
-        // transform B 50 pixels up on the y-axis
-        countryB.style.transform = `translate(${countryBPath.x}px, ${countryBPath.y}px)`;
-    });
-}
-
-
-/*
-const childA = document.querySelector('#childA');
-                    const childB = document.querySelector('#childB');
-                    const finalChildAStyle = { x: null, y: null, };
-                    const finalChildBStyle = { x: null, y: null, };
-
-                    let swapDone = false;
-                    
-                    document.querySelector('#swap').addEventListener('click', () => {
-                        console.log('test swap');
-
-                    if (swapDone === false) {
-                        // add CSS property 'transition: transform ease-in 0.3s' for the animation
-                        // if we do not use this, we simply get a quick switch of data from the two li
-                        childA.classList.add('transition');
-                        childB.classList.add('transition');
-
-                        let childAClientRect = childA.getBoundingClientRect()
-                        let childBClientRect = childB.getBoundingClientRect();
-                        
-                        finalChildAStyle.x = childA.getBoundingClientRect().left - childB.getBoundingClientRect().left;
-                        finalChildAStyle.y = childB.getBoundingClientRect().top - childA.getBoundingClientRect().top;                        
-                        finalChildBStyle.x = childB.getBoundingClientRect().left - childA.getBoundingClientRect().left;
-                        finalChildBStyle.y = childA.getBoundingClientRect().top - childB.getBoundingClientRect().top;
-
-                        console.log('a', childAClientRect);
-                        console.log('b', childBClientRect);
-
-                        console.log(finalChildAStyle);
-                        console.log(finalChildBStyle);
-
-                        // transform A -50 pixel down on the y-axis
-                        childA.style.transform = `translate(${finalChildAStyle.x}px, ${finalChildAStyle.y}px)`;
-
-                        // transform B 50 pixels up on the y-axis
-                        childB.style.transform = `translate(${finalChildBStyle.x}px, ${finalChildBStyle.y}px)`;
-                    
-                        // done once
-                        // if we do not use 
-                        setTimeout(() => {
-
-                            // we need to do the actual movement of the two li. 
-                            // if this is not put here, all we see is animation of b going up and a doing down.
-                            // then, it will flash back to a on top, and b on bottom.
-                            // By doing this, we finisht the animation with the correct placements of these two li.
-                            document.querySelector('.container').insertBefore(childB, childA);
-
-                            // clear the usage of using CSS 'transform ease-in 0.3s' for the animation
-                            childA.classList.remove('transition');
-                            childB.classList.remove('transition');
-
-                            // clear the transfrom from style
-                            childB.removeAttribute('style');
-                            childA.removeAttribute('style');
-                        }, 300);
-                    }
-                    swapDone = true;
-                    });
-*/
-
-
 export default coronaInstance;
-
 console.log(`Created CoronaCases instance √`); 

@@ -87,7 +87,7 @@ body, #slider, #Carousel, .slide-content {
     overflow: hidden;
     position: relative;
     left: 0px;
-    width: 30%;
+    width: 50%;
 }
 #CoronaVirusStats #sortText { margin-right: 15px; font-weight: 900; }
 #CoronaVirusStats #flagTable { 
