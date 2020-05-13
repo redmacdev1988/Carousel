@@ -40,8 +40,7 @@ var CoronaCases = (function() {
             let imgFlag = (flagName='China') => {
                 let flagSize = privateProps.get(this).flagSize
                 let imgEle = document.createElement('img');
-                imgEle.setAttribute('backfaceVisibility', 'hidden');
-                imgEle.setAttribute('transformStyle', 'preserve-3d');
+                imgEle.classList.add('noflick');
                 imgEle.setAttribute('height',flagSize);
                 imgEle.setAttribute('width', flagSize);
                 imgEle.setAttribute('src', getCountrySVGIconURL(flagName));
@@ -69,10 +68,9 @@ var CoronaCases = (function() {
                     let indexesToMove = -1*(i - indexOfCur);
                     const countryMovePath = { x: 0, y: heightOfRow * indexesToMove}; 
                     countryToMove.style.transform = `translate(${countryMovePath.x}px, ${countryMovePath.y}px)`;
+
                     ((prevCountry, indexPrev, slotsToMove, toMove) => {
                         setTimeout( () => {
-                            toMove.classList.remove('transition');
-                            toMove.style.transform = '';
                             let newData = this.data[indexPrev];
                             let newCountryName = newData.country_name.replace(/\s+/g, '-');
                             let hypened = newCountryName.replace(/\./g,'');
@@ -91,7 +89,9 @@ var CoronaCases = (function() {
                             cells[2].textContent = newData.cases;
                             cells[3].textContent = newData.deaths;
                             cells[4].textContent = deathPercentage.toFixed(2) + ' %';
-                        }, 1860);
+                            toMove.classList.remove('transition');
+                            toMove.style.transform = '';
+                        }, 1000);
 
                     })(hypened, i, indexesToMove, countryToMove);
                 } // loop
@@ -105,8 +105,6 @@ var CoronaCases = (function() {
                 } else { // previous table does not exist, let's create one
                     this.table = document.createElement('table');
                     this.table.setAttribute('id', FLAGTABLE_CSS_ID);
-                    //this.table.style.backfaceVisibility="hidden";
-                    //this.table.style.transformStyle='preserve-3d';
                 }
 
                 this.table.style.opacity = 1.0;
