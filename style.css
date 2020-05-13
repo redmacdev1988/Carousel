@@ -148,7 +148,7 @@ body, #slider, #Carousel, .slide-content {
   }
    
 .transition {
-    transition: transform ease-out 1.0s;
+    transition: transform ease-out 0.68s;
 }
    
 #swap {

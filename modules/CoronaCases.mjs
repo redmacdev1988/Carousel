@@ -49,9 +49,8 @@ var CoronaCases = (function() {
             }
 
             
-            this[animateCoronaUIFunc] = (prevData, animateDone) => {
+            this[animateCoronaUIFunc] = prevData => {
                 let BORDER_SPACING = 2;
-                let counter = 0;
                 let rows = document.querySelectorAll('#flagTable tr');
                 for (let i = 0; i < NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
                     let prevCountryName = prevData[i].country_name;
@@ -92,9 +91,7 @@ var CoronaCases = (function() {
                             cells[2].textContent = newData.cases;
                             cells[3].textContent = newData.deaths;
                             cells[4].textContent = deathPercentage.toFixed(2) + ' %';
-                            counter = counter + 1;
-                            if (counter >= NUM_OF_COUNTRIES_TO_DISPLAY) { animateDone(toMakeAppear);}
-                        }, 2500);
+                        }, 1860);
 
                     })(hypened, i, indexesToMove, countryToMove);
                 } // loop
@@ -223,8 +220,7 @@ var CoronaCases = (function() {
                 }
 
                 if (prevData) {
-                    this[animateCoronaUIFunc](prevData, () => {
-                    });
+                    this[animateCoronaUIFunc](prevData);
                 } else {
                     // change this name to createCoronaUI
                     this[createCoronaUIFunc](cbFinish);
