@@ -2,7 +2,7 @@ const CASES_BY_COUNTRY_URL = 'https://coronavirus-monitor.p.rapidapi.com/coronav
 const X_RAPIDAPI_HOST = "coronavirus-monitor.p.rapidapi.com";
 const X_RAPIDAPI_KEY = "bceb3c6713msh7b978618cfc7a1fp146facjsn41317387a72a";
 const FLAGTABLE_CSS_ID = 'flagTable';
-const NUM_OF_COUNTRIES_TO_DISPLAY = 45;
+const NUM_OF_COUNTRIES_TO_DISPLAY = 50;
 
 var CoronaCases = (function() {
 
@@ -40,6 +40,8 @@ var CoronaCases = (function() {
             let imgFlag = (flagName='China') => {
                 let flagSize = privateProps.get(this).flagSize
                 let imgEle = document.createElement('img');
+                imgEle.setAttribute('backfaceVisibility', 'hidden');
+                imgEle.setAttribute('transformStyle', 'preserve-3d');
                 imgEle.setAttribute('height',flagSize);
                 imgEle.setAttribute('width', flagSize);
                 imgEle.setAttribute('src', getCountrySVGIconURL(flagName));
@@ -48,71 +50,53 @@ var CoronaCases = (function() {
 
             
             this[animateCoronaUIFunc] = (prevData, animateDone) => {
-                console.log('prevData', prevData);
-                console.log('this.data', this.data);
                 let BORDER_SPACING = 2;
                 let counter = 0;
                 let rows = document.querySelectorAll('#flagTable tr');
-
                 for (let i = 0; i < NUM_OF_COUNTRIES_TO_DISPLAY; i++) {
-                    //let i = 16;
                     let prevCountryName = prevData[i].country_name;
-
                     let indexOfCur = -1;
                     this.data.map( function(currentCountry, index) {
-                        //console.log('currentCountry.country_name', currentCountry.country_name)
-                        //console.log('prevCountryName', prevCountryName);
                         if (currentCountry.country_name == prevCountryName) { indexOfCur = index; }
                     });
 
-                    let hypened = prevCountryName.replace(/\s+/g, '-');
-
+                    prevCountryName = prevCountryName.replace(/\s+/g, '-');
+                    let hypened = prevCountryName.replace(/\./g,'');
                     let countryToMove = document.querySelector('#' + hypened);
                     if (!countryToMove) { console.log('Uh oh problem with ' + hypened); }
                     let boundRect = countryToMove.getBoundingClientRect();
                     let heightOfRow = boundRect.height + BORDER_SPACING;
                     countryToMove.classList.add('transition');
-
-                    let indexOfPrev = i;
-                    let indexesToMove = indexOfPrev - indexOfCur;
-
-                    console.log(`indexOfPrev ${indexOfPrev}, indexOfCur ${indexOfCur}, indexesToMove ${indexesToMove}`);
-                    const countryMovePath = { x: 0, y: heightOfRow * -indexesToMove}; 
-
-                    console.log('countryMovePath', countryMovePath);
+                    let indexesToMove = -1*(i - indexOfCur);
+                    const countryMovePath = { x: 0, y: heightOfRow * indexesToMove}; 
                     countryToMove.style.transform = `translate(${countryMovePath.x}px, ${countryMovePath.y}px)`;
+                    ((prevCountry, indexPrev, slotsToMove, toMove) => {
+                        setTimeout( () => {
+                            toMove.classList.remove('transition');
+                            toMove.style.transform = '';
+                            let newData = this.data[indexPrev];
+                            let newCountryName = newData.country_name.replace(/\s+/g, '-');
+                            let hypened = newCountryName.replace(/\./g,'');
+                            rows[indexPrev+1].id = hypened;
+                            let cells = rows[indexPrev+1].getElementsByTagName('td');
+                            let deaths = newData.deaths;
+                            let cases = newData.cases;
+                            let intDeaths = parseFloat(deaths.replace(/,/g, ''));
+                            let intCases = parseFloat(cases.replace(/,/g, ''));
+                            let deathPercentage = (intDeaths / intCases) * 100;
+                            var imgData = document.createElement('td');
+                            var aFlag = imgFlag(hypened);
+                            imgData.appendChild(aFlag);
+                            cells[0].innerHTML = imgData.innerHTML;
+                            cells[1].textContent = newData.country_name;
+                            cells[2].textContent = newData.cases;
+                            cells[3].textContent = newData.deaths;
+                            cells[4].textContent = deathPercentage.toFixed(2) + ' %';
+                            counter = counter + 1;
+                            if (counter >= NUM_OF_COUNTRIES_TO_DISPLAY) { animateDone(toMakeAppear);}
+                        }, 2500);
 
-                    setTimeout(() => {
-                        // clear the usage of using CSS 'transform ease-in 0.3s' for the animation
-                        countryToMove.classList.remove('transition');
-                        countryToMove.removeAttribute('style');
-
-                        let newData = this.data[i];
-                        let hypened = newData.country_name.replace(/\s+/g, '-');
-                        rows[i+1].id = hypened;
-                        let cells = rows[i+1].getElementsByTagName('td');
-                        let deaths = newData.deaths;
-                        let cases = newData.cases;
-                        let intDeaths = parseFloat(deaths.replace(/,/g, ''));
-                        let intCases = parseFloat(cases.replace(/,/g, ''));
-                        let deathPercentage = (intDeaths / intCases) * 100;
-
-                        var imgData = document.createElement('td');
-                        var aFlag = imgFlag(hypened);
-                        imgData.appendChild(aFlag);
-
-                        cells[0].innerHTML = imgData.innerHTML;
-                        cells[1].textContent = newData.country_name;
-                        cells[2].textContent = newData.cases;
-                        cells[3].textContent = newData.deaths;
-                        cells[4].textContent = deathPercentage.toFixed(2) + ' %';
-
-                        counter = counter + 1;
-                        if (counter >= NUM_OF_COUNTRIES_TO_DISPLAY) {
-                            console.log('ANIMATE TABLE done!!!!!!');
-                            animateDone();
-                        }
-                    }, 860);
+                    })(hypened, i, indexesToMove, countryToMove);
                 } // loop
                 console.log('end of function!');
             }
@@ -124,8 +108,10 @@ var CoronaCases = (function() {
                 } else { // previous table does not exist, let's create one
                     this.table = document.createElement('table');
                     this.table.setAttribute('id', FLAGTABLE_CSS_ID);
+                    //this.table.style.backfaceVisibility="hidden";
+                    //this.table.style.transformStyle='preserve-3d';
                 }
-                //this.table.style.opacity = 0;
+
                 this.table.style.opacity = 1.0;
 
                 var header = this.table.createTHead();
@@ -148,7 +134,8 @@ var CoronaCases = (function() {
                 let numOfCountriesToDisplay = privateProps.get(this).numOfCountriesToDisplay;
                 for (var i = 0; i < numOfCountriesToDisplay; i++) {
                     let countryName = this.data[i].country_name;
-                    let hypened = countryName.replace(/\s+/g, '-');
+                    countryName = countryName.replace(/\s+/g, '-');
+                    let hypened = countryName.replace(/\./g,'');
                     
                     let deaths = this.data[i].deaths;
                     let cases = this.data[i].cases;
@@ -158,6 +145,7 @@ var CoronaCases = (function() {
                     let deathPercentage = (intDeaths / intCases) * 100;
 
                     var tableRow = document.createElement('tr');
+                    tableRow.classList.add('noflick');
                     tableRow.setAttribute('id', hypened);
 
                     var imgData = document.createElement('td');
@@ -236,7 +224,7 @@ var CoronaCases = (function() {
 
                 if (prevData) {
                     this[animateCoronaUIFunc](prevData, () => {
-                });
+                    });
                 } else {
                     // change this name to createCoronaUI
                     this[createCoronaUIFunc](cbFinish);

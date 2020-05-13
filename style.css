@@ -122,10 +122,6 @@ body, #slider, #Carousel, .slide-content {
     list-style: none;
 }
 
-#flagTable {
-    width: 100%;
-}
-
 #coronaBtn img {
     background: rgba(255, 0, 0, 0.8); 
     padding: 6px;
@@ -152,12 +148,16 @@ body, #slider, #Carousel, .slide-content {
   }
    
 .transition {
-    transition: transform ease-in 0.3s;
-  }
+    transition: transform ease-out 1.0s;
+}
    
-  #swap {
+#swap {
     padding: 5px;
     margin-top: 2rem;
-  }
+}
   
-  
+.noflick{
+    transform:translate3d(0,0,0);
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+}
