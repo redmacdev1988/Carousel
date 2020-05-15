@@ -4,13 +4,14 @@
 
 In your Microsoft Code, make sure you install Live Server from Extensions.
 
-After you have cloned the project, in the root directory, right click on index.html and click 
-'run with Live Server'.
+Cloned the project and open it with Code.
+In the file directory on the left, right click on index.html and click 'Open with Live Server'.
 
 You should see a url:
 ```
 http://127.0.0.1:5500/index.html
 ```
+The web page should in a browser.
 
 ### Aim of the project
 
