@@ -15,11 +15,10 @@ The web page should in a browser.
 
 ### Aim of the project
 
-Create a web page that acts as a daily desktop for the news and events I am interested in.
-It should showcase:
+Create an online desktop that shows news and I am interested in. It gets data from public APIs.
 
 - Using table and animation to show Covid-19 data on cases and deaths by country (done)
-- Using a circular linked list, scroll through an image every hour (done)
+- Using a circular linked list, scroll through my photo album every hour (done)
 - Shows the current Shenzhen weather (done)
 - Draggable to-do list
 
