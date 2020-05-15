@@ -87,7 +87,7 @@ body, #slider, #Carousel, .slide-content {
     overflow: hidden;
     position: relative;
     left: 0px;
-    width: 50%;
+    /*width: 50%;*/
 }
 #CoronaVirusStats #sortText { margin-right: 15px; font-weight: 900; }
 #CoronaVirusStats #flagTable { 
@@ -131,21 +131,6 @@ body, #slider, #Carousel, .slide-content {
 #coronaBtn {
     top: 50%;
 }
-
-/* example */
-
-.container {
-    float: right;
-    border: 2px solid red;
-    width: 20%;
-}
-.child {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 300px;
-    height: 50px;  
-  }
    
 .transition {
     transition: transform ease-out 1.0s;
@@ -154,24 +139,11 @@ body, #slider, #Carousel, .slide-content {
     -moz-backface-visibility:    hidden;
     -ms-backface-visibility:     hidden;
 }
-   
-#swap {
-    padding: 5px;
-    margin-top: 2rem;
-}
   
 .noflick{
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     -moz-backface-visibility:    hidden;
     -ms-backface-visibility:     hidden;
-
-    /* -webkit-transform: translateZ(0);
-    -moz-transform: translateZ(0);
-    -ms-transform: translateZ(0);
-    -o-transform: translateZ(0);
-    transform: translateZ(0); */
-
     -webkit-backface-visibility: hidden;
-
 }

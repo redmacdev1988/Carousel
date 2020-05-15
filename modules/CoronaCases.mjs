@@ -17,6 +17,10 @@ var CoronaCases = (function() {
 
     class CoronaCases {       
         constructor(casesURL, rapidApiHost, rapidApiKey) {  
+
+            let _opened = true;
+            let _coronaVirusBckgndWidth = 0;
+ 
             let decreasingFunc = (currentItem, nextItem, property) => {
                 let next = nextItem[property].replace(/,/g, '');
                 let cur = currentItem[property].replace(/,/g, '')
@@ -24,7 +28,7 @@ var CoronaCases = (function() {
                 let curInt = parseInt(cur);
                 return nextInt - curInt;
             }
-            
+
             privateProps.set(this, {
                 host: rapidApiHost,
                 key: rapidApiKey,
@@ -47,7 +51,6 @@ var CoronaCases = (function() {
                 return imgEle;
             }
 
-            
             this[animateCoronaUIFunc] = prevData => {
                 let BORDER_SPACING = 2;
                 let rows = document.querySelectorAll('#flagTable tr');
@@ -95,9 +98,7 @@ var CoronaCases = (function() {
 
                     })(hypened, i, indexesToMove, countryToMove);
                 } // loop
-                console.log('end of function!');
             }
-
 
             this[createCoronaUIFunc] = callback => {
                 if (!!this.table) {  // previous table exists, let's clear out its data
@@ -177,10 +178,76 @@ var CoronaCases = (function() {
                 callback();
             }
 
-        } // constructor
+            function createEventHandlerForTriggerBtn() {
+                let coronaBtn = document.querySelector('#coronaBtn');
+                let coronaVirusStatBckgnd = document.querySelector('#CoronaVirusStats');
+                coronaBtn.addEventListener('click', function() {
+                    if (!_opened) { // open it
+                        let increment = (_coronaVirusBckgndWidth/120);
+                        for (let i = 0; i < 121; i++) {
+                            setTimeout( function() {
+                                coronaBtn.style.transform = 'rotate( ' + i/1.333 + 'deg)';
+                                coronaBtn.style.left = (i * increment) + 10 + 'px';
+                                coronaVirusStatBckgnd.style.left =  (-1 * _coronaVirusBckgndWidth + i * increment) + 'px';
+                                if (i==120) {
+                                    coronaVirusStatBckgnd.style.left = '0px';
+                                    coronaBtn.style.left = _coronaVirusBckgndWidth + 10 + 'px';
+                                }
+                            }, 4 * i);
+                        }
+                        _opened = true;
+                    } else { // close it
+                        let increment = (_coronaVirusBckgndWidth/120);
+                        for (let i = 0; i < 121; i++) {
+                            setTimeout( function() {
+                                coronaBtn.style.transform = 'rotate( ' + (360-i/1.333) + 'deg)';
+                                coronaBtn.style.left = (_coronaVirusBckgndWidth - (i * increment)) + 10 + 'px';
+                                coronaVirusStatBckgnd.style.left =  (i * -increment) + 'px';
+                                if (i==120) {
+                                    coronaBtn.style.left = '10px';
+                                    coronaBtn.style.left = -1*_coronaVirusBckgndWidth;
+                                }
+                            }, 4 * i);
+                        }
+                        _opened = false;
+                    } 
+                });
+            }
+
+            function styleTriggerBtn() {
+                let coronaBtn = document.querySelector('#coronaBtn');
+                coronaBtn.style.position ='absolute';
+                coronaBtn.style.display = 'initial';
+                coronaBtn.style.top ='50%';
+                let table = document.querySelector('#flagTable');
+                _coronaVirusBckgndWidth = table.offsetWidth;
+                coronaBtn.style.left = _coronaVirusBckgndWidth + coronaBtn.offsetWidth/3 + 'px';
+            }
+
+            let createEventHandlerForCases = () => {
+                document.querySelector('#cases').addEventListener("click", this.updateData.bind(this, false, () => {
+
+                }));
+            }
+
+            let createEventHandlerForDeaths = () => {
+                document.querySelector('#deaths').addEventListener("click", this.updateData.bind(this, true, () => {
+
+                }));
+            }
+
+            this.init = () => {
+                this.updateData(false, function() {
+                    createEventHandlerForTriggerBtn();
+                    createEventHandlerForCases();
+                    createEventHandlerForDeaths();
+                    styleTriggerBtn();
+                }); 
+            }
+        } // end of constructor
 
         
-        //prototype function
+        //prototype functions
         fetchData = () => {
             return fetch(this.url, {
                 "method": "GET",
@@ -190,26 +257,12 @@ var CoronaCases = (function() {
                 }
             });               
         }
-    
-        // prototype function
+
         updateData = (byDeaths=false, cbFinish) => {     
-            
-            /*
-            let loader = document.getElementById('CoronaLoader');
-            loader.style.display = 'block';
-            loader.style.position = 'relative';
-            loader.style.right = '-360px';
-            loader.style.top = '60px';
-
-            if (this.table) this.table.innerHTML = loader;
-            */
-
             this.fetchData()
             .then(response => response.json())
             .then(data => {
-                console.log('updateData', data);
                 let prevData = this.data;
-                //loader.style.display = 'none';
                 this.data = data.countries_stat;
                 if (byDeaths) {
                     this.data.sort((a,b) => privateProps.get(this).decreasing(a, b, 'deaths'));
@@ -219,6 +272,7 @@ var CoronaCases = (function() {
 
                 if (prevData) {
                     this[animateCoronaUIFunc](prevData);
+                    cbFinish();
                 } else {
                     // change this name to createCoronaUI
                     this[createCoronaUIFunc](cbFinish);
@@ -233,75 +287,7 @@ var CoronaCases = (function() {
 })();
     
 var coronaInstance = new CoronaCases(CASES_BY_COUNTRY_URL, X_RAPIDAPI_HOST, X_RAPIDAPI_KEY);
-coronaInstance.updateData(false, function() {
-    styleTriggerBtn();
-}); 
-
-function deaths() {
-    console.log('clicked deaths button')
-    coronaInstance.updateData(true, function() {}); 
-}
-
-function cases() {
-    coronaInstance.updateData(false, function() {}); 
-}
-
-document.querySelector('#deaths').addEventListener("click", deaths);
-document.querySelector('#cases').addEventListener("click", cases);
-
-
-//// for animating corona button /////////
-let opened = true;
-let coronaVirusBckgndWidth = 0;
-
-function styleTriggerBtn() {
-    let coronaBtn = document.querySelector('#coronaBtn');
-    coronaBtn.style.position ='absolute';
-    coronaBtn.style.top ='50%';
-    let coronaVirusStatBckgnd = document.querySelector('#CoronaVirusStats');
-    coronaVirusBckgndWidth = coronaVirusStatBckgnd.offsetWidth;
-    coronaBtn.style.left = coronaVirusStatBckgnd.offsetWidth + (coronaBtn.offsetWidth/3) + 'px';
-    coronaBtn.style.backgroundImage = `url('http://127.0.0.1:5500/images/virus.png')`;
-}
-
-function createEventHandlerForTriggerBtn() {
-    let coronaBtn = document.querySelector('#coronaBtn');
-    let coronaVirusStatBckgnd = document.querySelector('#CoronaVirusStats');
-    coronaBtn.addEventListener('click', function() {
-        console.log('you clicked on the corona virus button');
-        if (!opened) { // open it
-            let increment = (coronaVirusBckgndWidth/60);
-            for (let i = 0; i < 61; i++) {
-                setTimeout( function() {
-                    coronaBtn.style.transform = 'rotate( ' + i*3 + 'deg)';
-                    coronaBtn.style.left = (i * increment) + 10 + 'px';
-                    coronaVirusStatBckgnd.style.left =  (-1 * coronaVirusBckgndWidth + i * increment) + 'px';
-                    if (i==60) {
-                        coronaVirusStatBckgnd.style.left = '0px';
-                        coronaBtn.style.left = coronaVirusBckgndWidth + 10 + 'px';
-                    }
-                }, 4 * i);
-            }
-            opened = true;
-        } else { // close it
-            let increment = (coronaVirusBckgndWidth/60);
-            for (let i = 0; i < 61; i++) {
-                setTimeout( function() {
-                    coronaBtn.style.transform = 'rotate( ' + (180-i*3) + 'deg)';
-                    coronaBtn.style.left = (coronaVirusBckgndWidth - (i * increment)) + 10 + 'px';
-                    coronaVirusStatBckgnd.style.left =  (i * -increment) + 'px';
-                    if (i==60) {
-                        coronaBtn.style.left = '10px';
-                        coronaBtn.style.left = -1*coronaVirusBckgndWidth;
-                    }
-                }, 4 * i);
-            }
-            opened = false;
-        } 
-    });
-}
-
-createEventHandlerForTriggerBtn();
+coronaInstance.init();
 
 export default coronaInstance;
 console.log(`Created CoronaCases instance √`); 
