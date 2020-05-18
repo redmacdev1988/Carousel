@@ -155,6 +155,7 @@ class Carousel {
             data._posOne = _getPosition(data._slideOne);
             data._posTwo = _getPosition(data._slideTwo);
         }
+
         _addRightArrowEventHandler.call(data, _screenWidth, _screenHeight);
     }
 }
