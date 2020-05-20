@@ -5,7 +5,7 @@ console.log('ran tween');
 
 //gsap.from(".circle", {duration: 1, opacity: 0, y: () => Math.random() * 400 - 200, stagger: 0.25});
 
-
+/*
 gsap.to('.logo', { // config obj
     duration: 1.0,
     x: 60,
@@ -16,6 +16,7 @@ gsap.to('.logo', { // config obj
     }
 });
 
+*/
 
 
 /*
@@ -32,6 +33,8 @@ gsap.to(myObject, {duration: 2, rotation: 360, onUpdate: function() {
 */
 
 // onStart
+
+
 
 
 

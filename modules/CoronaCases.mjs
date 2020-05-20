@@ -17,7 +17,7 @@ function getCountrySVGIconURL(countryName) {
 class CoronaCases {       
     constructor(casesURL, rapidApiHost, rapidApiKey) {  
 
-        let _opened = true;
+        let _opened = false;
         let _coronaVirusBckgndWidth = 0;
 
         let decreasingFunc = (currentItem, nextItem, property) => {
@@ -188,9 +188,10 @@ class CoronaCases {
 
             coronaBtn.addEventListener('click', function() {
                 if (!_opened) { // open it 
+                    console.log('open it!');
                     gsap.to([coronaVirusStatBckgnd, coronaBtn], { // config obj
                         duration: 1.0,
-                        x: 0,
+                        x: _coronaVirusBckgndWidth,
                         ease:GS_EASE_TYPE // bounce, back
                     });
 
@@ -203,7 +204,7 @@ class CoronaCases {
                 } else { // close it
                     gsap.to([coronaVirusStatBckgnd, coronaBtn], { // config obj
                         duration: 1.0,
-                        x: -1 * _coronaVirusBckgndWidth,
+                        x: 0,
                         ease: GS_EASE_TYPE // bounce, back
                     });
 
@@ -222,9 +223,11 @@ class CoronaCases {
             coronaBtn.style.position ='absolute';
             coronaBtn.style.display = 'initial';
             coronaBtn.style.top ='50%';
-            let table = document.querySelector('#flagTable');
-            _coronaVirusBckgndWidth = table.offsetWidth;
-            coronaBtn.style.left = _coronaVirusBckgndWidth + coronaBtn.offsetWidth/3 + 'px';
+            coronaBtn.style.left = coronaBtn.offsetWidth/3 + 'px';
+            gsap.to(coronaBtn, {
+                duration: 0.5, 
+                opacity: 1,
+            });
         }
 
         let createEventHandlerForCases = () => {
@@ -241,8 +244,12 @@ class CoronaCases {
 
         this.init = () => {
             this.updateData(false, function() {
+                let table = document.querySelector('#flagTable');
+                _coronaVirusBckgndWidth = table.offsetWidth;
+                document.querySelector('#CoronaVirusStats').style.left = -1*_coronaVirusBckgndWidth + 'px';
                 styleTriggerBtn();
                 createEventHandlerForTriggerBtn();
+
                 createEventHandlerForCases();
                 createEventHandlerForDeaths();
                 

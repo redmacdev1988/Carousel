@@ -86,7 +86,7 @@ body, #slider, #Carousel, .slide-content {
     height: 100vh;
     overflow: hidden;
     position: relative;
-    left: 0px;
+    left: -999px;
     /*width: 50%;*/
 }
 #CoronaVirusStats #sortText { margin-right: 15px; font-weight: 900; }
@@ -128,8 +128,9 @@ body, #slider, #Carousel, .slide-content {
     border-radius: 10px;
 }
 
-#coronaBtn {
-    top: 50%;
+#coronaBtn { 
+    top: 50%; 
+    opacity: 0;
 }
 
 
