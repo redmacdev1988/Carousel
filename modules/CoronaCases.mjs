@@ -76,12 +76,10 @@ class CoronaCases {
 
                         // make sure data on html is updated
                         let newData = this.data[i];
-                        console.log(newData.country_name, i);
                         let newCountryName = newData.country_name.replace(/\s+/g, '-');
                         let hypened = newCountryName.replace(/\./g,'');
                         rows[i+1].id = hypened;
-                        console.log(`row ${i+1} takes on`, hypened);
-
+    
                         let cells = rows[i+1].getElementsByTagName('td');
                         let deaths = newData.deaths;
                         let cases = newData.cases;
@@ -185,21 +183,17 @@ class CoronaCases {
             let coronaBtn = document.querySelector('#coronaBtn');
             let coronaVirusStatBckgnd = document.querySelector('#CoronaVirusStats');
             let GS_EASE_TYPE = 'power4';
-
             coronaBtn.addEventListener('click', function() {
                 if (!_opened) { // open it 
-                    console.log('open it!');
                     gsap.to([coronaVirusStatBckgnd, coronaBtn], { // config obj
                         duration: 1.0,
                         x: _coronaVirusBckgndWidth,
                         ease:GS_EASE_TYPE // bounce, back
                     });
-
                     gsap.to(coronaBtn, {
                         duration: 1.0, 
                         rotation: 90
                     });
-
                     _opened = true;
                 } else { // close it
                     gsap.to([coronaVirusStatBckgnd, coronaBtn], { // config obj
@@ -207,12 +201,10 @@ class CoronaCases {
                         x: 0,
                         ease: GS_EASE_TYPE // bounce, back
                     });
-
                     gsap.to(coronaBtn, {
                         duration: 1.0, 
                         rotation: 0
                     });
-
                     _opened = false;
                 }
             });
@@ -249,10 +241,8 @@ class CoronaCases {
                 document.querySelector('#CoronaVirusStats').style.left = -1*_coronaVirusBckgndWidth + 'px';
                 styleTriggerBtn();
                 createEventHandlerForTriggerBtn();
-
                 createEventHandlerForCases();
                 createEventHandlerForDeaths();
-                
             }); 
         }
     } // end of constructor
@@ -280,18 +270,13 @@ class CoronaCases {
             } else {
                 this.data.sort((a,b) => privateProps.get(this).decreasing(a, b, 'cases'));
             }
-
             if (prevData) {
                 this[animateCoronaUIFunc](prevData);
                 cbFinish();
             } else {
-                // change this name to createCoronaUI
                 this[createCoronaUIFunc](cbFinish);
             }
-            
-
         }).catch(err => { console.log(err);});
-        
     } // updateData          
 } // end of class
     

@@ -15,7 +15,6 @@ function _createSlideWithImage(imageURL, id, startingX) {
     slide.style.backgroundImage = `url('${imageURL}')`;
     slide.style.left = startingX + 'px';
     slide.className = 'slide';
-    console.log(`Created Slide ${slide.id} where left is ${slide.style.left}`)
     return slide;
 }
 
@@ -35,9 +34,7 @@ function _insertSlideIntoSlider(queue, sliderID, startingX, slideText) {
     newSlide.appendChild(slideContent);
     let main = document.querySelector(this.mainID);
     main.appendChild(newSlide);
-    queue.moveNext(function(from, to){
-        console.log(`${from.data} to ${to.data}`);
-    });
+    queue.moveNext(function(from, to){});
     return main;
 }
 
@@ -47,7 +44,6 @@ function _addRightArrowEventHandler() {
     let arrowRight = document.querySelector('#arrow-right');
     if (arrowRight) {
         let animating = false;
-
         arrowRight.addEventListener('click', evt => {
             var _slides = document.getElementsByClassName('slide');  
             if (!animating) {
@@ -58,10 +54,7 @@ function _addRightArrowEventHandler() {
                     ease:'power4', // bounce, back,
                     clearProps:"transform", // clears out translate 3d,
                     onStart: function() {
-                        console.log('---onStart---');
-                        if (!animating) {
-                            animating = true;
-                        } 
+                        if (!animating) { animating = true; } 
                     },
                     onComplete: function() {
                         if (animating) {
@@ -111,7 +104,7 @@ class Carousel {
 let carouselInstance = new Carousel(
                 "#slider", 
                 ["slide1", "slide2", "slide3"],
-                ['One', 'Two', 'Three']);
+                ['', '', '']);
 
 console.log(`Created Carousel instance √`);
 export default carouselInstance;
