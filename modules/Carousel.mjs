@@ -4,10 +4,11 @@ let _circularQueue = new CircularQueue('slideshow');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/chang-an.jpg', 'chang-an');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/flower-garden.jpg', 'flower-garden');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/flower-garden2.jpg', 'flower-garden2');
-_circularQueue.insertData( 'http://127.0.0.1:5500/images/palace_wall.jpg', 'palace_wall');
-_circularQueue.insertData( 'http://127.0.0.1:5500/images/wujiang-concert.jpg', 'wujiang concert');
-_circularQueue.insertData( 'http://127.0.0.1:5500/images/wujiang-park.jpg', 'wujiang park');
-_circularQueue.insertData( 'http://127.0.0.1:5500/images/Zhou-Zhuang-Boat.jpg', 'Zhou Zhuang Boat');
+_circularQueue.insertData( 'http://127.0.0.1:5500/images/palace_wall.jpg', 'palace-wall');
+_circularQueue.insertData( 'http://127.0.0.1:5500/images/beijing-grounds.jpg', 'beijing-grounds');
+_circularQueue.insertData( 'http://127.0.0.1:5500/images/wujiang-concert.jpg', 'wujiang-concert');
+_circularQueue.insertData( 'http://127.0.0.1:5500/images/wujiang-park.jpg', 'wujiang-park');
+_circularQueue.insertData( 'http://127.0.0.1:5500/images/Zhou-Zhuang-Boat.jpg', 'Zhou-Zhuang-Boat');
 
 
 console.log(`Created CircularQueue with Images √`);
@@ -39,7 +40,6 @@ function _insertSlideIntoSlider(queue, sliderID, startingX, slideText) {
     newSlide.appendChild(slideContent);
     let main = document.querySelector(this.mainID);
     main.appendChild(newSlide);
-    queue.moveNext(function(from, to){});
     return main;
 }
 
@@ -85,31 +85,34 @@ function _addRightArrowEventHandler() {
 
 
 class Carousel {
-    constructor(mainID, sliderIDs, sliderTexts) {
+    constructor(mainID) {
         _screenWidth = window.innerWidth;
         this.mainID = mainID;
-        this.sliderIDs = sliderIDs;
-        this.sliderText = sliderTexts || [];
 
         _circularQueue.setCur('chang-an'); // initial image
-        for (let i = 0; i < this.sliderIDs.length; i++ ) {
+        for (let i = 0; i < _circularQueue.numOfItems; i++ ) {
+
             let startingX = _screenWidth * i;
+            let current =  _circularQueue.getCur();
+
             _insertSlideIntoSlider.call(
                 this, 
                 _circularQueue, 
-                this.sliderIDs[i], 
+                current.name, 
                 startingX,
-                this.sliderText[i]
+                ''
             );
+
+            _circularQueue.moveNext(function(from, to){
+                console.log(`${from} --> ${to}`)
+            });
         }
         window.onresize = () => { _screenWidth = window.innerWidth;}
         _addRightArrowEventHandler.call(this);
     }
 }
 
-let carouselInstance = new Carousel(
-                "#slider", 
-                ["slide1", "slide2", "slide3", "slide4", "slide5", "slide6", "slide7"]);
+let carouselInstance = new Carousel("#slider");
 
 console.log(`Created Carousel instance √`);
 export default carouselInstance;

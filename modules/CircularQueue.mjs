@@ -135,6 +135,10 @@ export default class CircularQueue {
         }
     }
 
+    length() {
+
+    }
+    
     iterate(callback) {
         let index = 0;
         if (this.numOfItems > 0) {
