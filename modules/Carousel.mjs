@@ -5,6 +5,11 @@ _circularQueue.insertData( 'http://127.0.0.1:5500/images/chang-an.jpg', 'chang-a
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/flower-garden.jpg', 'flower-garden');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/flower-garden2.jpg', 'flower-garden2');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/palace_wall.jpg', 'palace_wall');
+_circularQueue.insertData( 'http://127.0.0.1:5500/images/wujiang-concert.jpg', 'wujiang concert');
+_circularQueue.insertData( 'http://127.0.0.1:5500/images/wujiang-park.jpg', 'wujiang park');
+_circularQueue.insertData( 'http://127.0.0.1:5500/images/Zhou-Zhuang-Boat.jpg', 'Zhou Zhuang Boat');
+
+
 console.log(`Created CircularQueue with Images √`);
 
 let _screenWidth;
@@ -22,7 +27,7 @@ function _createSlideContent(slideText) {
     let slideContent = document.createElement("div");
     slideContent.className = 'slide-content';
     let spanText = document.createElement('span');
-    spanText.innerHTML = slideText
+    spanText.innerHTML = slideText || '';
     slideContent.appendChild(spanText);
     return slideContent;
 }
@@ -58,14 +63,14 @@ function _addRightArrowEventHandler() {
                     },
                     onComplete: function() {
                         if (animating) {
-                            for (let i = 0; i < 3; i++) {
+                            for (let i = 0; i < _slides.length; i++) {
                                 let slide = _slides[i].style.left;
                                 let indexOfPx = slide.indexOf('px');
                                 let numeric = slide.substring(0, indexOfPx);
                                 let nowX = numeric - _screenWidth;
                                 _slides[i].style.left = nowX + 'px';
                                 if (nowX < 0) {
-                                    _slides[i].style.left = _screenWidth * 2 + 'px';
+                                    _slides[i].style.left = _screenWidth * (_slides.length-1) + 'px';
                                 }
                             }
                             animating = false;
@@ -84,7 +89,8 @@ class Carousel {
         _screenWidth = window.innerWidth;
         this.mainID = mainID;
         this.sliderIDs = sliderIDs;
-        this.sliderText = sliderTexts
+        this.sliderText = sliderTexts || [];
+
         _circularQueue.setCur('chang-an'); // initial image
         for (let i = 0; i < this.sliderIDs.length; i++ ) {
             let startingX = _screenWidth * i;
@@ -103,8 +109,7 @@ class Carousel {
 
 let carouselInstance = new Carousel(
                 "#slider", 
-                ["slide1", "slide2", "slide3"],
-                ['', '', '']);
+                ["slide1", "slide2", "slide3", "slide4", "slide5", "slide6", "slide7"]);
 
 console.log(`Created Carousel instance √`);
 export default carouselInstance;
