@@ -38,6 +38,85 @@
             </div>
             <div id="slider"></div>
             <div id="arrow-right" class="arrow"></div>
+            <script>
+
+                function fib(n, cache) {
+
+                    cache = cache || {};
+
+                    if (cache[n]) {
+                        console.log(`Using value ${cache[n]} at key ${n} from cache`);
+                        return cache[n];
+                    }
+
+                    if ( n <= 1 ) {
+                        cache[n] = 1;
+                        console.log(`Stored value 1 at key ${n}`);
+                        return 1;
+                    }
+                    // store result in memo dictionary
+                    let value = fib(n-1, cache) + fib(n-2, cache);
+                    console.log(`Stored value ${value} at key ${n}`);
+                    cache[n] = value;
+                    return cache[n];
+                }
+
+                //let ans = fib(4);
+                //console.log(ans);
+                
+                function memoizer(fun){
+                    
+                    let cache = {} // closure for higher order function
+
+                    return function (n) {
+                        console.log(`processing for ${n}`);
+                        if (cache[n] != undefined ) {
+                            console.log(`getting value ${cache[n]} for n ${n}`);
+                            return cache[n]
+                        } else {
+                            let result = fun(n, cache);
+                            cache[n] = result
+                            return result
+                        }
+                    }
+                }
+
+                const fibonacci = memoizer(fib);
+                let result = fibonacci(4);
+                console.log('result', result);
+
+
+
+/*
+                function fib(n, memo) {
+                    console.log(`processing for n ${n}`);
+                    // create a memo somewhere
+                    memo = memo || {};
+
+                    // if we have stored it, return the value
+                    if (memo[n]) { 
+                        console.log(`* for n ${n}, we have value ${memo[n]} already`);
+                        return memo[n]; 
+                    }
+                    
+                    if ( n <= 1 ) {
+                        console.log(`√ store value 1 for key ${n}`);
+                        return memo[n] = 1;
+                    }
+                    console.log(`processing fib(${n-1}) and fib(${n-2})...`);
+
+                    // store result in memo dictionary
+                    let value = fib(n-1, memo) + fib(n-2, memo);
+                    console.log(`√ store value ${value} for key ${n}`);
+
+                    return memo[n] = value;
+                }
+
+                let memo;
+                let ans = fib(4, memo);
+                console.log(ans);
+*/
+            </script>
         </div>
     </body>
 </html>

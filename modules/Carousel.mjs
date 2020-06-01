@@ -3,17 +3,19 @@ import CircularQueue from '../modules/CircularQueue.mjs';
 let _circularQueue = new CircularQueue('slideshow');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/chang-an.jpg', 'chang-an');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/flower-garden.jpg', 'flower-garden');
+/*
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/flower-garden2.jpg', 'flower-garden2');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/palace_wall.jpg', 'palace-wall');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/beijing-grounds.jpg', 'beijing-grounds');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/wujiang-concert.jpg', 'wujiang-concert');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/wujiang-park.jpg', 'wujiang-park');
 _circularQueue.insertData( 'http://127.0.0.1:5500/images/Zhou-Zhuang-Boat.jpg', 'Zhou-Zhuang-Boat');
-
+*/
 
 console.log(`Created CircularQueue with Images √`);
 
 let _screenWidth;
+let _currentIndex = 0;
 
 function _createSlideWithImage(imageURL, id, startingX) {
     let slide = document.createElement("div");
@@ -50,9 +52,11 @@ function _addRightArrowEventHandler() {
     if (arrowRight) {
         let animating = false;
         arrowRight.addEventListener('click', evt => {
-            var _slides = document.getElementsByClassName('slide');  
+            var slides = document.getElementsByClassName('slide');  
+            _currentIndex++;
+
             if (!animating) {
-                gsap.to(_slides, { // config obj
+                gsap.to(slides, { // config obj
                     duration: 1.0,
                     x: -1 * _screenWidth,
                     y: 0,
@@ -63,14 +67,14 @@ function _addRightArrowEventHandler() {
                     },
                     onComplete: function() {
                         if (animating) {
-                            for (let i = 0; i < _slides.length; i++) {
-                                let slide = _slides[i].style.left;
+                            for (let i = 0; i < slides.length; i++) {
+                                let slide = slides[i].style.left;
                                 let indexOfPx = slide.indexOf('px');
                                 let numeric = slide.substring(0, indexOfPx);
                                 let nowX = numeric - _screenWidth;
-                                _slides[i].style.left = nowX + 'px';
+                                slides[i].style.left = nowX + 'px';
                                 if (nowX < 0) {
-                                    _slides[i].style.left = _screenWidth * (_slides.length-1) + 'px';
+                                    slides[i].style.left = _screenWidth * (slides.length-1) + 'px';
                                 }
                             }
                             animating = false;
@@ -104,10 +108,35 @@ class Carousel {
             );
 
             _circularQueue.moveNext(function(from, to){
-                console.log(`${from} --> ${to}`)
+                //console.log(`${from} --> ${to}`)
             });
         }
-        window.onresize = () => { _screenWidth = window.innerWidth;}
+
+        window.onresize = () => { 
+            _screenWidth = window.innerWidth;
+            // have to re-calculate all the starting points
+            var slides = document.getElementsByClassName('slide');  
+
+            console.log('_screenWidth', _screenWidth);
+
+            let posInSlide = 0;
+            
+            let stepsLeft = slides.length;
+            let currentIndex = _currentIndex % slides.length;
+
+            while(stepsLeft > 0) {
+                console.log(`its index is ${currentIndex}`);
+
+                slides[currentIndex].style.left = posInSlide * _screenWidth + 'px';
+                console.log(`assigned x is ${posInSlide * _screenWidth}`);
+
+                currentIndex = ++currentIndex % slides.length;
+                posInSlide++;
+                stepsLeft--;
+            }
+    
+        }
+
         _addRightArrowEventHandler.call(this);
     }
 }

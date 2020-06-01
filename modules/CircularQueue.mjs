@@ -35,7 +35,7 @@ export default class CircularQueue {
 
     // prototype functions
     insertData(data, name) {
-        console.log(`inserting data [${data}] into Queue ${this.name}`);
+        //console.log(`inserting data [${data}] into Queue ${this.name}`);
         let pvt = privateProps.get(this);
         if (pvt.head === null) {
             pvt.head = new Node(name, null, null, data);
